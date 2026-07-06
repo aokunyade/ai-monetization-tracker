@@ -90,6 +90,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       <span><button class="toggle" id="logToggle">log</button>&nbsp;&nbsp;<span class="glyphs">&ndash; &#9633; &times;</span></span></div>
     <div class="body"><div id="arrChart" class="chart tall"></div></div>
   </div>
+  <div class="win" style="margin-top:18px">
+    <div class="tbar orange"><span>ARR triangulation — how the extrapolation growth is set</span><span class="glyphs">&ndash; &#9633; &times;</span></div>
+    <div class="body" id="triBody" style="font-size:12px;line-height:1.7"></div>
+  </div>
 
   <div class="sect">&#9313; Token usage &amp; adoption <span class="tag">OpenRouter API · Vercel Gateway · SDK downloads</span></div>
   <div id="orSampleNote"></div>
@@ -140,6 +144,22 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
   <div class="win" style="margin-top:18px">
     <div class="tbar pink"><span>Buildout news</span><span class="note" id="newsNote"></span><span class="glyphs">&ndash; &#9633; &times;</span></div>
     <div class="body" id="newsBody" style="max-height:520px;overflow:auto"></div>
+  </div>
+
+  <div class="sect">&#9316; Raw proxy signals — triangulation inputs <span class="tag">everything feeding the ARR blend, unprocessed</span></div>
+  <div class="grid g2">
+    <div class="win"><div class="tbar orange"><span>Lab tokens on OpenRouter — absolute (B/day, share &times; total)</span><span class="glyphs">&ndash; &#9633; &times;</span></div>
+      <div class="body"><div id="rawOrChart" class="chart short"></div></div></div>
+    <div class="win"><div class="tbar orange"><span>SDK downloads by family — 7DMA (M/day, npm + PyPI summed)</span><span class="glyphs">&ndash; &#9633; &times;</span></div>
+      <div class="body"><div id="rawSdkChart" class="chart short"></div></div></div>
+    <div class="win"><div class="tbar orange"><span>GitHub code search — public repos referencing each API</span><span class="glyphs">&ndash; &#9633; &times;</span></div>
+      <div class="body"><div id="rawGhChart" class="chart short"></div>
+      <div class="statsub" id="rawGhNote"></div></div></div>
+    <div class="win"><div class="tbar orange"><span>GitHub dependents — repos depending on the official SDKs</span><span class="glyphs">&ndash; &#9633; &times;</span></div>
+      <div class="body"><div id="rawDepChart" class="chart short"></div>
+      <div class="statsub" id="rawDepNote"></div></div></div>
+    <div class="win" id="rawTrendsWin" style="display:none"><div class="tbar orange"><span>Google Trends — search interest (0-100)</span><span class="glyphs">&ndash; &#9633; &times;</span></div>
+      <div class="body"><div id="rawTrendsChart" class="chart short"></div></div></div>
   </div>
 
   <div class="win" style="margin-top:34px">
@@ -230,6 +250,30 @@ var PALETTE = ['#c8622f','#4f6bd8','#2f8f75','#8f6bc9','#c9a227','#c05a8e','#4aa
   }
   render();
   el('logToggle').onclick = function(){ isLog = !isLog; this.textContent = isLog?'log':'linear'; render(); };
+
+  // triangulation breakdown panel
+  (function(){
+    var NAMES = {openrouter_tokens:'OpenRouter tokens', vercel_spend_share:'Vercel $ share',
+                 sdk_downloads:'SDK downloads', github_code_refs:'GitHub code refs'};
+    function fp(g){ return (g>=0?'+':'') + (g*100).toFixed(1) + '%/mo'; }
+    var html = '';
+    keys.forEach(function(k){
+      var c = A.companies[k], t = c.triangulation;
+      html += '<div style="margin-bottom:8px"><span class="counter-name '+k+'">'+c.label+'</span> — ';
+      if (!t || !t.g_signal && t && Object.keys(t.signals||{}).length===0){
+        html += 'live signals not yet available (need ~2 weeks of daily runs) — using the pure checkpoint model: <b>'+
+          fp(t ? t.g_used_now : 0)+'</b></div>';
+        return;
+      }
+      var parts = Object.keys(t.signals).map(function(s){ return (NAMES[s]||s)+' '+fp(t.signals[s]); });
+      html += 'extrapolation growth <b>'+fp(t.g_used_now)+'</b> = '+
+        Math.round((1-t.weight_signals)*100)+'% &times; checkpoint pace '+fp(t.g_checkpoint_now)+
+        ' + '+Math.round(t.weight_signals*100)+'% &times; signal composite '+fp(t.g_signal)+
+        ' <span style="color:#8a7f5c">('+parts.join(' · ')+')</span></div>';
+    });
+    html += '<div class="statsub">Signals are trailing-30d growth of each series&#39; 7-day average. SDK installs lead API usage; OpenRouter/Vercel are routing windows (direction, not totals); GitHub counts are a census of public projects wired to each API. Composite is weight-averaged and clamped, then blended with the checkpoint-implied pace.</div>';
+    el('triBody').innerHTML = html;
+  })();
 })();
 
 /* ---------- section 2: OpenRouter ---------- */
@@ -435,10 +479,91 @@ var PALETTE = ['#c8622f','#4f6bd8','#2f8f75','#8f6bc9','#c9a227','#c05a8e','#4aa
   }
 })();
 
+/* ---------- section 5: raw proxy signals ---------- */
+(function(){
+  function hide(id){ var w = el(id); if (w && w.closest('.win')) w.closest('.win').style.display='none'; }
+  function dma7(pts){
+    var out=[], win=[];
+    pts.forEach(function(p){ win.push(p[1]); if(win.length>7) win.shift();
+      out.push([p[0], +(win.reduce(function(a,b){return a+b;},0)/win.length).toFixed(3)]); });
+    return out;
+  }
+  function lineChart(id, seriesDefs, yName, pctAxis){
+    if (!seriesDefs.length){ hide(id); return; }
+    mk(id).setOption({tooltip:TIP, legend:Object.assign({},LEG,{type:'scroll'}), grid:{left:64,right:20,top:44,bottom:28},
+      xAxis:Object.assign({type:'time'},AXIS),
+      yAxis:Object.assign({type:'value', name:yName||'', nameTextStyle:{color:'#6b654e'},
+        axisLabel:{color:'#6b654e', formatter: pctAxis?'{value}%':undefined}},AXIS),
+      series:seriesDefs.map(function(s,i){ return {name:s.name, type:'line', showSymbol:s.data.length<25, symbolSize:5,
+        data:s.data, lineStyle:{width:2, color:s.color||PALETTE[i%PALETTE.length], type:s.dashed?'dashed':'solid'},
+        itemStyle:{color:s.color||PALETTE[i%PALETTE.length]}}; })});
+  }
+
+  // 1. absolute lab tokens on OpenRouter (share % x daily total)
+  var O = D.openrouter;
+  if (O && O.lab_share && !O.sample){
+    var totals = {};
+    (O.daily_totals||[]).forEach(function(p){ totals[p[0]] = p[1]; });
+    var defs = [];
+    [['anthropic','#c8622f'],['openai','#2f8f75']].forEach(function(pair){
+      var share = O.lab_share.labs[pair[0]];
+      if (!share) return;
+      var pts = O.lab_share.dates.map(function(d,i){ return totals[d]!=null ? [d, +(share[i]*totals[d]/100).toFixed(1)] : null; })
+        .filter(Boolean);
+      defs.push({name:pair[0], color:pair[1], data:pts});
+    });
+    lineChart('rawOrChart', defs, 'B tokens/day');
+  } else hide('rawOrChart');
+
+  // 2. SDK family sums (anthropic-ish vs openai-ish packages), 7DMA
+  var S = D.sdk;
+  if (S && S.npm && !S.sample){
+    function fam(re){
+      var agg = {};
+      function addAll(group){ Object.keys(group||{}).forEach(function(pkg){
+        if (!re.test(pkg)) return;
+        group[pkg].forEach(function(p){ agg[p[0]] = (agg[p[0]]||0) + p[1]; });
+      }); }
+      addAll(S.npm); addAll(S.pypi);
+      return dma7(Object.keys(agg).sort().map(function(d){ return [d, agg[d]]; }));
+    }
+    lineChart('rawSdkChart', [
+      {name:'Anthropic family', color:'#c8622f', data:fam(/anthropic|claude/i)},
+      {name:'OpenAI family', color:'#2f8f75', data:fam(/openai|codex/i)}
+    ], 'M/day');
+  } else hide('rawSdkChart');
+
+  // 3 + 4. GitHub code search & dependents (accumulating daily snapshots)
+  var P = D.proxies || {};
+  function snapshotDefs(store, colorFor){
+    return Object.keys(store||{}).filter(function(k){ return (store[k]||[]).length; })
+      .map(function(k,i){ return {name:k.replace(/^.*\//,''), data:store[k],
+        color: colorFor ? colorFor(k) : PALETTE[i%PALETTE.length]}; });
+  }
+  var ghDefs = snapshotDefs(P.github, function(k){ return /anthropic|ANTHROPIC/i.test(k) ? '#c8622f' : '#2f8f75'; });
+  if (ghDefs.length){
+    lineChart('rawGhChart', ghDefs, 'repos');
+    var n = Math.max.apply(null, ghDefs.map(function(d){return d.data.length;}));
+    el('rawGhNote').textContent = n < 14 ? 'Accumulating daily snapshots ('+n+' so far) — feeds the ARR blend once ~2 weeks of history exist.' : '';
+  } else { hide('rawGhChart'); }
+  var depDefs = snapshotDefs(P.dependents, function(k){ return /anthropic/i.test(k) ? '#c8622f' : '#2f8f75'; });
+  if (depDefs.length){
+    lineChart('rawDepChart', depDefs, 'repos');
+    el('rawDepNote').textContent = 'Displayed for context; not currently weighted in the blend.';
+  } else { hide('rawDepChart'); }
+
+  // 5. Google Trends (optional)
+  var tDefs = snapshotDefs(P.trends);
+  if (tDefs.length){
+    el('rawTrendsWin').style.display='';
+    lineChart('rawTrendsChart', tDefs, 'interest');
+  }
+})();
+
 /* ---------- footer ---------- */
 el('footBody').innerHTML =
   '<h4>Methodology</h4>'+
-  'The ARR main line is this site\'s <b>composite estimate</b> (multi-channel triangulation): the historical segment is a log-linear interpolation through publicly reported run-rate checkpoints; beyond the latest point it extrapolates along a damped recent growth path in real time, with the shaded band showing model uncertainty (widening with extrapolation length). &#9670; markers are publicly reported run-rates. The extrapolation is a <b>live estimate</b>, not company guidance; all figures are run-rate (monthly &times;12), unaudited, for research reference only.'+
+  'The ARR main line is this site\'s <b>composite estimate</b> (multi-channel triangulation): the historical segment is a log-linear interpolation through publicly reported run-rate checkpoints; beyond the latest point the growth rate is a <b>blend</b> of the damped checkpoint-implied pace and a weighted composite of live adoption signals (OpenRouter token growth, Vercel Gateway $-share growth, SDK download growth — installs lead usage — and GitHub code-reference growth), shown in the triangulation panel. The shaded band is model uncertainty, widening with extrapolation length and slightly more when signals are active. &#9670; markers are publicly reported run-rates. The extrapolation is a <b>live estimate</b>, not company guidance; all figures are run-rate (monthly &times;12), unaudited, for research reference only.'+
   '<h4>Sources</h4>'+
   '· Tokens: <a href="https://openrouter.ai/rankings" target="_blank" rel="noopener">OpenRouter Rankings</a> (official Datasets API)<br>'+
   '· Gateway share: <a href="https://vercel.com/ai-gateway/leaderboards/models" target="_blank" rel="noopener">Vercel AI Gateway Leaderboards</a> (production traffic of 200K+ teams)<br>'+
