@@ -18,9 +18,13 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install optional deps (Google Trends, best-effort)
+        run: pip install --quiet pytrends || true
+
       - name: Fetch data
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/update_data.py
 
       - name: Commit & push if changed
