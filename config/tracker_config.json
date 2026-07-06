@@ -4,6 +4,13 @@
     "growth_damping": 0.8,
     "growth_decay_months": 2.0,
     "fan_pct_per_month": 0.025,
+    "triangulation": {
+      "weight_signals": 0.3,
+      "lookback_days": 30,
+      "min_points": 14,
+      "signal_clamp_monthly": [-0.10, 0.30],
+      "signal_weights": { "openrouter_tokens": 0.4, "vercel_spend_share": 0.2, "sdk_downloads": 0.3, "github_code_refs": 0.1 }
+    },
     "companies": {
       "anthropic": {
         "label": "Anthropic",
@@ -16,7 +23,14 @@
           { "date": "2026-02-15", "value_b": 14, "src": "Public reports: $14B (Feb 2026)" },
           { "date": "2026-04-12", "value_b": 30, "src": "Public reports: $30B run-rate (Apr 2026)" },
           { "date": "2026-05-14", "value_b": 47, "src": "Series H announcement: $47B as of mid-May 2026" }
-        ]
+        ],
+        "signals": {
+          "openrouter_lab": "anthropic",
+          "vercel_lab": "anthropic",
+          "npm": ["@anthropic-ai/sdk", "@anthropic-ai/claude-code", "@ai-sdk/anthropic"],
+          "pypi": ["anthropic", "langchain-anthropic"],
+          "github_queries": ["ANTHROPIC_API_KEY", "api.anthropic.com"]
+        }
       },
       "openai": {
         "label": "OpenAI",
@@ -27,7 +41,14 @@
           { "date": "2025-12-31", "value_b": 20, "src": "Public reports: ~$20B annualized exiting 2025" },
           { "date": "2026-03-31", "value_b": 25, "src": "Public reports: >$25B (Mar 2026)" },
           { "date": "2026-05-30", "value_b": 33, "src": "Public reports: ~$33B run-rate (May 2026)" }
-        ]
+        ],
+        "signals": {
+          "openrouter_lab": "openai",
+          "vercel_lab": "openai",
+          "npm": ["openai", "@ai-sdk/openai", "@openai/codex"],
+          "pypi": ["openai"],
+          "github_queries": ["OPENAI_API_KEY", "api.openai.com"]
+        }
       }
     }
   },
@@ -49,8 +70,13 @@
   },
   "sdk": {
     "start_date": "2025-01-01",
-    "npm": ["@anthropic-ai/sdk", "openai"],
-    "pypi": ["anthropic", "openai"]
+    "npm": ["@anthropic-ai/sdk", "openai", "@anthropic-ai/claude-code", "@ai-sdk/anthropic", "@ai-sdk/openai", "@openai/codex"],
+    "pypi": ["anthropic", "openai", "langchain-anthropic"]
+  },
+  "proxies": {
+    "github_queries": ["ANTHROPIC_API_KEY", "api.anthropic.com", "OPENAI_API_KEY", "api.openai.com"],
+    "dependents_repos": ["anthropics/anthropic-sdk-python", "anthropics/anthropic-sdk-typescript", "openai/openai-python", "openai/openai-node"],
+    "trends_keywords": ["Claude API", "OpenAI API"]
   },
   "vercel": {
     "history_labs": ["anthropic", "openai", "google", "deepseek"]
