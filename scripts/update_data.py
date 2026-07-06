@@ -13,8 +13,11 @@ Sources:
   - Epoch AI "AI Data Centers" CSVs (CC-BY 4.0)
   - Vercel AI Gateway leaderboards (public page + public API)
   - npm downloads API + pypistats (public)
+  - GitHub code search + repo dependents (adoption proxies, needs GITHUB_TOKEN)
+  - Google Trends via pytrends (optional, best-effort)
   - Google News RSS (public)
-  - ARR model: computed locally from config/tracker_config.json checkpoints
+  - ARR model: public run-rate checkpoints from config, triangulated with the
+    live adoption signals above (see build_arr).
 """
 
 import csv
@@ -91,11 +94,114 @@ def load_previous():
         return {}
 
 
+# ------------------------------------------------- triangulation helpers
+def _series_growth(pts, lookback_days, min_points):
+    """Monthly (30.4d) log growth of a series' 7DMA over the trailing window.
+
+    pts: sorted [[YYYY-MM-DD, value], ...]. Returns None if not enough data.
+    """
+    if not pts or len(pts) < min_points:
+        return None
+    vals = [p[1] for p in pts]
+    ma, win = [], []
+    for v in vals:
+        win.append(v)
+        win = win[-7:]
+        ma.append(sum(win) / len(win))
+    d_last = datetime.strptime(pts[-1][0], "%Y-%m-%d")
+    target = d_last - timedelta(days=lookback_days)
+    i0 = 0
+    for i, p in enumerate(pts):
+        if datetime.strptime(p[0], "%Y-%m-%d") <= target:
+            i0 = i
+    if i0 >= len(pts) - 3 or ma[i0] <= 0 or ma[-1] <= 0:
+        return None
+    span = (d_last - datetime.strptime(pts[i0][0], "%Y-%m-%d")).days or 1
+    return math.log(ma[-1] / ma[i0]) * (30.4375 / span)
+
+
+def _company_signals(sig_cfg, sections, tri):
+    """Per-signal monthly growth rates for one company, from live sections."""
+    lookback = tri.get("lookback_days", 30)
+    minp = tri.get("min_points", 14)
+    found = {}
+
+    orl = sections.get("openrouter") or {}
+    if orl and not orl.get("sample"):
+        try:
+            lab = sig_cfg.get("openrouter_lab")
+            share = (orl.get("lab_share", {}).get("labs") or {}).get(lab)
+            dates = orl.get("lab_share", {}).get("dates") or []
+            totals = dict(orl.get("daily_totals") or [])
+            if share:
+                pts = [[d, share[i] * totals.get(d, 0) / 100.0]
+                       for i, d in enumerate(dates) if totals.get(d)]
+                g = _series_growth(pts, lookback, minp)
+                if g is not None:
+                    found["openrouter_tokens"] = g
+        except Exception as e:  # noqa: BLE001
+            log(f"triangulation openrouter signal: {e}")
+
+    v = sections.get("vercel") or {}
+    if v and not v.get("sample"):
+        try:
+            hist = (v.get("history") or {}).get("cost") or {}
+            series = (hist.get("labs") or {}).get(sig_cfg.get("vercel_lab"))
+            if series:
+                pts = [[hist["days"][i], series[i]] for i in range(len(series)) if series[i] > 0]
+                g = _series_growth(pts, lookback, minp)
+                if g is not None:
+                    found["vercel_spend_share"] = g
+        except Exception as e:  # noqa: BLE001
+            log(f"triangulation vercel signal: {e}")
+
+    s = sections.get("sdk") or {}
+    if s and not s.get("sample"):
+        try:
+            agg = defaultdict(float)
+            for pkg in sig_cfg.get("npm", []):
+                for d, val in (s.get("npm") or {}).get(pkg, []):
+                    agg[d] += val
+            for pkg in sig_cfg.get("pypi", []):
+                for d, val in (s.get("pypi") or {}).get(pkg, []):
+                    agg[d] += val
+            pts = sorted([d, v2] for d, v2 in agg.items())
+            if len(pts) > 1:
+                pts = pts[:-1]  # drop last (often partial upstream)
+            g = _series_growth(pts, lookback, minp)
+            if g is not None:
+                found["sdk_downloads"] = g
+        except Exception as e:  # noqa: BLE001
+            log(f"triangulation sdk signal: {e}")
+
+    p = sections.get("proxies") or {}
+    try:
+        gs = []
+        for q in sig_cfg.get("github_queries", []):
+            g = _series_growth((p.get("github") or {}).get(q, []), lookback, minp)
+            if g is not None:
+                gs.append(g)
+        if gs:
+            found["github_code_refs"] = sum(gs) / len(gs)
+    except Exception as e:  # noqa: BLE001
+        log(f"triangulation github signal: {e}")
+
+    return found
+
+
 # ---------------------------------------------------------------- ARR model
-def build_arr():
-    """Log-linear interpolation through public run-rate checkpoints, then a
-    damped-growth extrapolation with a widening uncertainty fan."""
+def build_arr(sections):
+    """Checkpoint-anchored ARR model, triangulated with live adoption signals.
+
+    History: log-linear interpolation through publicly reported run-rate
+    checkpoints. Beyond the last checkpoint the growth rate is a blend of
+    (a) the damped, decaying checkpoint-implied pace and (b) a weighted
+    composite of live signals: the lab's OpenRouter token growth, Vercel
+    Gateway $-spend share growth, SDK download growth (SDK installs lead API
+    usage), and GitHub code-reference growth.
+    """
     acfg = CFG["arr"]
+    tri = acfg.get("triangulation") or {}
     now = today_utc()
     t_now = ms(now)
     out = {"render": True, "updated": iso(now), "companies": {}}
@@ -110,11 +216,31 @@ def build_arr():
         months_span = max((t2 - t1) / (DAY_MS * 30.4375), 0.25)
         g_month = (math.log(v2) - math.log(v1)) / months_span
         g0 = g_month * acfg["growth_damping"]          # damped starting growth (per month)
-        tau = acfg.get("growth_decay_months", 2.0)     # growth pace decays with this time constant
+        tau = acfg.get("growth_decay_months", 2.0)     # checkpoint growth decays with this constant
+
+        # --- live signal composite ---
+        sigs = _company_signals(c.get("signals") or {}, sections, tri) if tri else {}
+        g_signal = None
+        if sigs:
+            weights = tri.get("signal_weights", {})
+            tw = sum(weights.get(k, 0.1) for k in sigs) or 1.0
+            g_signal = sum(g * weights.get(k, 0.1) for k, g in sigs.items()) / tw
+            lo, hi = tri.get("signal_clamp_monthly", [-0.10, 0.30])
+            g_signal = max(lo, min(hi, g_signal))
+        w_sig = tri.get("weight_signals", 0.3) if g_signal is not None else 0.0
+
+        def g_blend(dt_months):
+            g_cp = g0 * math.exp(-dt_months / tau)
+            return (1 - w_sig) * g_cp + w_sig * (g_signal or 0.0)
 
         def ext_v(dt_months):
-            """Value dt months after the last checkpoint, with decaying growth."""
-            return pts[-1][1] * math.exp(g0 * tau * (1 - math.exp(-dt_months / tau)))
+            """Value dt months after the last checkpoint (numeric integration)."""
+            v, t = pts[-1][1], 0.0
+            while t < dt_months - 1e-9:
+                step = min(0.1, dt_months - t)
+                v *= math.exp(g_blend(t + step / 2) * step)
+                t += step
+            return v
 
         def value_at(t):
             if t <= pts[0][0]:
@@ -133,13 +259,17 @@ def build_arr():
         hist.append([t_now, round(v_now, 2)])
 
         dt_now = (t_now - pts[-1][0]) / (DAY_MS * 30.4375)
-        ext, fan_lo, fan_hi = [[t_now, round(v_now, 2)]], [[t_now, round(v_now, 2)]], [[t_now, round(v_now, 2)]]
+        ext = [[t_now, round(v_now, 2)]]
+        fan_lo = [[t_now, round(v_now, 2)]]
+        fan_hi = [[t_now, round(v_now, 2)]]
         n_steps = int(acfg["extrapolation_months"] * 3)
+        # signals add information but also noise: widen the fan slightly when used
+        fan_scale = 1.0 + 0.3 * w_sig
         for i in range(1, n_steps + 1):
             mth = acfg["extrapolation_months"] * i / n_steps
             te = t_now + int(mth * 30.4375 * DAY_MS)
             v = ext_v(dt_now + mth)
-            band = acfg["fan_pct_per_month"] * mth
+            band = acfg["fan_pct_per_month"] * mth * fan_scale
             ext.append([te, round(v, 2)])
             fan_lo.append([te, round(v * (1 - band), 2)])
             fan_hi.append([te, round(v * (1 + band), 2)])
@@ -153,8 +283,15 @@ def build_arr():
             "fanHi": fan_hi,
             "cps": [{"t": ms(p["date"]), "v": p["value_b"], "src": p["src"]} for p in c["checkpoints"]],
             "counter": {"tLast": t_now, "vLast": round(v_now, 3),
-                        "rMs": g0 * math.exp(-dt_now / tau) / (DAY_MS * 30.4375)},
+                        "rMs": g_blend(dt_now) / (DAY_MS * 30.4375)},
             "yoyDen": round(value_at(t_now - 365 * DAY_MS), 2),
+            "triangulation": {
+                "signals": {k: round(g, 4) for k, g in sigs.items()},
+                "g_signal": round(g_signal, 4) if g_signal is not None else None,
+                "g_checkpoint_now": round(g0 * math.exp(-dt_now / tau), 4),
+                "g_used_now": round(g_blend(dt_now), 4),
+                "weight_signals": w_sig,
+            },
         }
     return out
 
@@ -299,28 +436,98 @@ def fetch_sdk(prev):
         while cur < end:
             chunk_end = min(cur + timedelta(days=530), end)
             url = f"https://api.npmjs.org/downloads/range/{iso(cur)}:{iso(chunk_end)}/{urllib.parse.quote(pkg, safe='@/')}"
-        # noqa: E501
-            j = http_json(url)
-            for d in j.get("downloads", []):
-                if d["downloads"] > 0:
-                    pts.append([d["day"], round(d["downloads"] / 1e6, 4)])
+            try:
+                j = http_json(url)
+                for d in j.get("downloads", []):
+                    if d["downloads"] > 0:
+                        pts.append([d["day"], round(d["downloads"] / 1e6, 4)])
+            except Exception as e:  # noqa: BLE001
+                log(f"sdk npm {pkg}: {e}")
             cur = chunk_end + timedelta(days=1)
-        npm[pkg] = pts
+        if pts:
+            npm[pkg] = pts
     pypi = {}
     for pkg in CFG["sdk"]["pypi"]:
-        j = http_json(f"https://pypistats.org/api/packages/{pkg}/overall?mirrors=false")
-        pts = [[d["date"], round(d["downloads"] / 1e6, 4)]
-               for d in j.get("data", [])
-               if d.get("category") == "without_mirrors" and d["date"] >= start and d["downloads"] > 0]
-        pypi[pkg] = sorted(pts)
+        try:
+            j = http_json(f"https://pypistats.org/api/packages/{pkg}/overall?mirrors=false")
+            pts = [[d["date"], round(d["downloads"] / 1e6, 4)]
+                   for d in j.get("data", [])
+                   if d.get("category") == "without_mirrors" and d["date"] >= start and d["downloads"] > 0]
+            if pts:
+                pypi[pkg] = sorted(pts)
+        except Exception as e:  # noqa: BLE001
+            log(f"sdk pypi {pkg}: {e}")
+    if not npm and not pypi:
+        raise RuntimeError("sdk: nothing fetched")
     return {
         "as_of": iso(today_utc()),
         "source": "npm: api.npmjs.org/downloads/range · PyPI: pypistats.org (without mirrors)",
         "unit": "M downloads/day",
-        "note": "Developer adoption proxy. Strong weekly seasonality — the front-end plots a 7-day moving average. Zero-value days (upstream gaps) removed.",
+        "note": "Developer adoption proxy — you can't call the API without the SDK, so installs lead usage. Strong weekly seasonality; the front-end plots a 7-day moving average. Zero-value days (upstream gaps) removed.",
         "npm": npm,
         "pypi": pypi,
     }
+
+
+# -------------------------------------------------------- adoption proxies
+def fetch_proxies(prev):
+    """GitHub code-search hits, repo dependents, Google Trends.
+
+    These are daily snapshots — history accumulates in data.js run by run,
+    so growth rates become usable after ~2 weeks of scheduled runs.
+    """
+    prev = prev if isinstance(prev, dict) else {}
+    today = iso(today_utc())
+    pcfg = CFG.get("proxies", {})
+    out = {
+        "as_of": today,
+        "source": "GitHub code search ('how many public repos reference this API') + repo dependents · Google Trends (best-effort). Daily snapshots; history accumulates.",
+        "github": dict(prev.get("github") or {}),
+        "dependents": dict(prev.get("dependents") or {}),
+        "trends": prev.get("trends") or {},
+    }
+
+    def append(store, k, n):
+        hist = [p for p in store.get(k, []) if p[0] != today]
+        hist.append([today, n])
+        store[k] = hist[-730:]
+
+    token = os.environ.get("GH_SEARCH_TOKEN", "").strip() or os.environ.get("GITHUB_TOKEN", "").strip()
+    if token:
+        for q in pcfg.get("github_queries", []):
+            try:
+                j = http_json(
+                    "https://api.github.com/search/code?per_page=1&q=" + urllib.parse.quote(f'"{q}"'),
+                    headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"})
+                append(out["github"], q, int(j.get("total_count", 0)))
+                time.sleep(7)  # code-search API: 10 requests/minute
+            except Exception as e:  # noqa: BLE001
+                log(f"proxies github code search '{q}': {e}")
+    else:
+        log("proxies: no GITHUB_TOKEN / GH_SEARCH_TOKEN — skipping code search")
+
+    for repo in pcfg.get("dependents_repos", []):
+        try:
+            html = http_get(f"https://github.com/{repo}/network/dependents").decode("utf-8", "replace")
+            m = re.search(r"([\d,]+)\s*\n?\s*Repositories", html)
+            if m:
+                append(out["dependents"], repo, int(m.group(1).replace(",", "")))
+        except Exception as e:  # noqa: BLE001
+            log(f"proxies dependents {repo}: {e}")
+
+    try:
+        from pytrends.request import TrendReq  # optional dependency
+        kws = pcfg.get("trends_keywords", [])
+        if kws:
+            pt = TrendReq(hl="en-US", tz=0)
+            pt.build_payload(kws, timeframe="today 3-m")
+            df = pt.interest_over_time()
+            out["trends"] = {k: [[d.strftime("%Y-%m-%d"), int(v)] for d, v in df[k].items()]
+                             for k in kws if k in df}
+    except Exception as e:  # noqa: BLE001
+        log(f"proxies trends skipped: {e}")
+
+    return out
 
 
 # ----------------------------------------------------------- Data centers
@@ -566,12 +773,12 @@ def main():
     prev = load_previous()
     out = {}
     sections = {
-        "arr": (lambda: build_arr(), None),
         "openrouter": (lambda: fetch_openrouter(prev.get("openrouter")), sample_openrouter),
         "gpu": (lambda: fetch_gpu(prev.get("gpu")), sample_gpu),
         "datacenters": (lambda: fetch_datacenters(prev.get("datacenters")), sample_datacenters),
         "vercel": (lambda: fetch_vercel(prev.get("vercel")), sample_vercel),
         "sdk": (lambda: fetch_sdk(prev.get("sdk")), sample_sdk),
+        "proxies": (lambda: fetch_proxies(prev.get("proxies")), None),
         "news": (lambda: fetch_news(prev.get("news")), sample_news),
     }
     for name, (fn, sample_fn) in sections.items():
@@ -588,7 +795,15 @@ def main():
                 out[name] = sample_fn()
             else:
                 log(f"{name}: FAILED ({e})")
-                out[name] = {"error": str(e), "as_of": iso(today_utc())}
+                out[name] = prev_sec or {"error": str(e), "as_of": iso(today_utc())}
+
+    # ARR last — it triangulates with the freshly fetched sections above
+    try:
+        out["arr"] = build_arr(out)
+        log("arr: OK")
+    except Exception as e:  # noqa: BLE001
+        log(f"arr: FAILED ({e}) — keeping previous data")
+        out["arr"] = prev.get("arr") or {"error": str(e)}
 
     out["signals"] = dict(CFG["signals"], as_of=iso(today_utc()),
                           note="Manually curated KOL / podcast takes — edit config/tracker_config.json")
