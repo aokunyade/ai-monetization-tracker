@@ -1,8 +1,8 @@
 {
   "arr": {
     "extrapolation_months": 6,
-    "growth_damping": 0.8,
-    "growth_decay_months": 2.0,
+    "growth_damping": 0.9,
+    "growth_decay_months": 4.0,
     "fan_pct_per_month": 0.025,
     "triangulation": {
       "weight_signals": 0.3,
