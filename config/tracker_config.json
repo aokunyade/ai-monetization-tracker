@@ -22,7 +22,8 @@
           { "date": "2025-12-31", "value_b": 9,  "src": "Public reports: $9B exiting 2025" },
           { "date": "2026-02-15", "value_b": 14, "src": "Public reports: $14B (Feb 2026)" },
           { "date": "2026-04-12", "value_b": 30, "src": "Public reports: $30B run-rate (Apr 2026)" },
-          { "date": "2026-05-14", "value_b": 47, "src": "Series H announcement: $47B as of mid-May 2026" }
+          { "date": "2026-05-14", "value_b": 47, "src": "Series H announcement: $47B as of mid-May 2026" },
+          { "date": "2026-07-15", "value_b": 75, "src": "Curated: $75B run-rate as of Jul 15, 2026 (cf. Yipit est. $69B, Jul 10)" }
         ],
         "signals": {
           "openrouter_lab": "anthropic",
