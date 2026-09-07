@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "anchors": [
+    {
+      "date": "2025-06-09",
+      "arr_bn": 10.0,
+      "currency": "USD",
+      "unit": "billions",
+      "evidence_type": "reported",
+      "source_title": "CNBC",
+      "source": "CNBC reported $10B in annualized revenue according to an OpenAI spokesperson",
+      "url": "https://www.cnbc.com/2025/06/09/openai-hits-10-billion-in-annualized-revenue-fueled-by-chatgpt-growth.html"
+    },
+    {
+      "date": "2025-07-31",
+      "arr_bn": 12.0,
+      "currency": "USD",
+      "unit": "billions",
+      "evidence_type": "reported",
+      "source_title": "The Information",
+      "source": "The Information reported $12B in annualized revenue, an approximately $1B monthly pace",
+      "url": "https://www.theinformation.com/articles/openai-hits-12-billion-annualized-revenue-breaks-700-million-chatgpt-weekly-active-users"
+    },
+    {
+      "date": "2025-12-31",
+      "arr_bn": 20.0,
+      "currency": "USD",
+      "unit": "billions",
+      "evidence_type": "third_party_estimate",
+      "source_title": "ValueAdd VC",
+      "source": "Public reports: ~$20B annualized exiting 2025",
+      "url": "https://valueaddvc.com/blog/openai-revenue-2026-20b-arr-4b-month-path-to-profitability"
+    },
+    {
+      "date": "2026-05-30",
+      "arr_bn": 33.0,
+      "currency": "USD",
+      "unit": "billions",
+      "evidence_type": "third_party_estimate",
+      "source_title": "TickerTrends",
+      "source": "TickerTrends estimate: $33.0B ARR",
+      "url": "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    },
+    {
+      "date": "2026-06-25",
+      "arr_bn": 37.3,
+      "currency": "USD",
+      "unit": "billions",
+      "evidence_type": "third_party_estimate",
+      "source_title": "TickerTrends",
+      "source": "TickerTrends estimate: $37.3B ARR",
+      "url": "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    },
+    {
+      "date": "2026-07-29",
+      "arr_bn": 42.6,
+      "currency": "USD",
+      "unit": "billions",
+      "evidence_type": "third_party_estimate",
+      "source_title": "TickerTrends",
+      "source": "TickerTrends estimate: $42.6B ARR",
+      "url": "https://blog.tickertrends.io/p/openai-arr-growth-accelerated-july-2026"
+    }
+  ]
+}

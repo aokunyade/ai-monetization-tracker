@@ -1,0 +1,46 @@
+{
+  "as_of": "2026-07-06",
+  "note": "手动 curated 的 KOL / podcast 观点，事件驱动更新。take_en/via_en 为英文版字段",
+  "kol": [
+    {
+      "date": "2026-06",
+      "who": "Dario Amodei",
+      "via": "Dwarkesh Podcast「We are near the end of the exponential」",
+      "via_en": "Dwarkesh Podcast — \"We are near the end of the exponential\"",
+      "take": "数据中心采购节奏 vs 收入增速的时点风险——「错两年就是毁灭性的」；重申 2026-27 出现「数据中心里的天才国度」；Claude Code 已成 enterprise 主导 → coding agent 是 token 消耗的结构性主力",
+      "take_en": "On datacenter buildout vs revenue timing — \"being off by a couple of years could be ruinous\"; reiterates \"a country of geniuses in a datacenter\" by 2026-27; Claude Code now dominant in enterprise → coding agents are the structural driver of token consumption",
+      "url": "https://www.dwarkesh.com/p/dario-amodei-2"
+    },
+    {
+      "date": "2026-06",
+      "who": "Zvi Mowshowitz",
+      "via": "对上述播客的逐段 recap（bull/bear 分歧点梳理）",
+      "via_en": "Point-by-point recap of the above pod (bull/bear disagreements)",
+      "take": "适合快速抓要点：capex 周期、收入外推的分歧在哪、哪些论断值得打折",
+      "take_en": "Fast way to extract the cruxes: where the capex-cycle and revenue-extrapolation disagreements sit, and which claims deserve a haircut",
+      "url": "https://thezvi.substack.com/p/on-dwarkesh-patels-2026-podcast-with"
+    },
+    {
+      "date": "2026-04-29",
+      "who": "Andrej Karpathy",
+      "via": "Sequoia AI Ascent（对谈 Stephanie Zhan）",
+      "via_en": "Sequoia AI Ascent (with Stephanie Zhan)",
+      "take": "AI 正在成为数字工作的新 operating layer：从 vibe coding 进入 agentic engineering，人类的角色变成指挥、监督与编排 agents",
+      "take_en": "AI is becoming the new operating layer for digital work: from vibe coding to agentic engineering — humans direct, supervise and orchestrate agents",
+      "url": "https://www.youtube.com/watch?v=96jN2OCOfLs"
+    },
+    {
+      "date": "2026-03",
+      "who": "Andrej Karpathy",
+      "via": "No Priors（Sarah Guo）",
+      "via_en": "No Priors (Sarah Guo)",
+      "take": "「loopy era」：自主系统自己跑实验、训模型、调参；自 2025-12 起基本不再手写代码——对 token 结构的含义：agent 长任务 = 输出 token 与工具调用密度双升",
+      "take_en": "The \"loopy era\": autonomous systems run their own experiments, training and tuning; he has barely hand-written code since Dec 2025 — implication for token mix: long agent tasks push both output tokens and tool-call density up",
+      "url": "https://www.youtube.com/watch?v=kwSVtQ7dziU"
+    }
+  ],
+  "reports": [
+    { "title": "a16z × OpenRouter — State of AI (100T token study)", "url": "https://openrouter.ai/state-of-ai" },
+    { "title": "Vercel AI Gateway Production Index", "url": "https://vercel.com/blog/ai-gateway-production-index" }
+  ]
+}

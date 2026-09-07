@@ -36,13 +36,6 @@
       "openai": {
         "label": "OpenAI",
         "color": "#2f8f75",
-        "start": { "date": "2024-02-01", "value_b": 2.0 },
-        "checkpoints": [
-          { "date": "2025-06-09", "value_b": 10, "src": "Public reports: $10B annualized (Jun 2025)" },
-          { "date": "2025-12-31", "value_b": 20, "src": "Public reports: ~$20B annualized exiting 2025" },
-          { "date": "2026-03-31", "value_b": 25, "src": "Public reports: >$25B (Mar 2026)" },
-          { "date": "2026-05-30", "value_b": 33, "src": "Public reports: ~$33B run-rate (May 2026)" }
-        ],
         "signals": {
           "openrouter_lab": "openai",
           "vercel_lab": "openai",

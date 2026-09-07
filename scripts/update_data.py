@@ -36,7 +36,33 @@ from datetime import datetime, timedelta, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_JS = os.path.join(ROOT, "data", "data.js")
-CFG = json.load(open(os.path.join(ROOT, "config", "tracker_config.json"), encoding="utf-8"))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from anthropic_arr.openai_anchors import load_openai_anchor_records  # noqa: E402
+
+with open(os.path.join(ROOT, "config", "tracker_config.json"), encoding="utf-8") as f:
+    CFG = json.load(f)
+_openai_anchor_records = load_openai_anchor_records()
+CFG["arr"]["companies"]["openai"]["checkpoints"] = [
+    {
+        "date": row["date"],
+        "value_b": row["arr_bn"],
+        "src": f'{row["classification"]}:{row["source"]}',
+        "classification": row["classification"],
+    }
+    for row in _openai_anchor_records[1:]
+]
+_openai_first_anchor = _openai_anchor_records[0]
+CFG["arr"]["companies"]["openai"]["start"] = {
+    "date": _openai_first_anchor["date"],
+    "value_b": _openai_first_anchor["arr_bn"],
+    "src": (
+        f'{_openai_first_anchor["classification"]}:'
+        f'{_openai_first_anchor["source"]}'
+    ),
+    "classification": _openai_first_anchor["classification"],
+}
 
 UA = "Mozilla/5.0 (compatible; ai-monetization-tracker; +https://github.com)"
 DAY_MS = 86400000
@@ -274,6 +300,9 @@ def build_arr(sections):
             fan_lo.append([te, round(v * (1 - band), 2)])
             fan_hi.append([te, round(v * (1 + band), 2)])
 
+        published_anchors = list(c["checkpoints"])
+        if c["start"].get("src"):
+            published_anchors.insert(0, c["start"])
         out["companies"][key] = {
             "label": c["label"],
             "color": c["color"],
@@ -281,7 +310,19 @@ def build_arr(sections):
             "ext": ext,
             "fanLo": fan_lo,
             "fanHi": fan_hi,
-            "cps": [{"t": ms(p["date"]), "v": p["value_b"], "src": p["src"]} for p in c["checkpoints"]],
+            "cps": [
+                {
+                    "t": ms(p["date"]),
+                    "v": p["value_b"],
+                    "src": p["src"],
+                    **(
+                        {"classification": p["classification"]}
+                        if p.get("classification")
+                        else {}
+                    ),
+                }
+                for p in published_anchors
+            ],
             "counter": {"tLast": t_now, "vLast": round(v_now, 3),
                         "rMs": g_blend(dt_now) / (DAY_MS * 30.4375)},
             "yoyDen": round(value_at(t_now - 365 * DAY_MS), 2),

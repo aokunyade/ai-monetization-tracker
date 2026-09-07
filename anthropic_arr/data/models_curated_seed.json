@@ -1,0 +1,1268 @@
+{
+ "as_of": "2026-07-17",
+ "method": "官方发布数字（厂商博客/system card/HF model card），逐条带来源 URL 与口径注记；由多代理联网调研采集并人工复核。第三方复测（Arena/AA/vals.ai）由 fetch_model_scores.py 每日自动抓取，另存 model_scores.json。",
+ "benchmarks": {
+  "swe_bench_pro": {
+   "label": "SWE-Bench Pro",
+   "unit": "%",
+   "cat": "代码",
+   "cat_en": "Code",
+   "note": "Scale AI 出题；厂商自报用自家 scaffolding，与 Scale 官方独立跑分可差 15+ 分",
+   "note_en": "Authored by Scale AI; vendor self-reported figures use their own scaffolding and can differ 15+ points from Scale's official independent run."
+  },
+  "deepswe": {
+   "label": "DeepSWE",
+   "unit": "%",
+   "cat": "代码·长程",
+   "cat_en": "Code · Long-horizon",
+   "note": "Datacurve 出题（113 题原创防污染、91 仓库 5 语言、Pass@1）；厂商自报与 Datacurve 官方榜可能有 harness 差异；独立榜（含单题成本/步数）每日自动抓取，见对比表 DeepSWE 行",
+   "note_en": "Authored by Datacurve (113 original contamination-resistant tasks, 91 repos, 5 languages, Pass@1); vendor self-reported numbers may differ in harness from Datacurve's official board; the independent board (with per-task cost/steps) is auto-fetched daily — see the DeepSWE row in the comparison table."
+  },
+  "terminal_bench_21": {
+   "label": "Terminal-Bench 2.1",
+   "unit": "%",
+   "cat": "终端 Agent",
+   "cat_en": "Terminal Agent",
+   "note": "标 † 为 TB 2.0 旧口径，不可与 2.1 直接横比",
+   "note_en": "Entries marked † use the older TB 2.0 methodology and are not directly comparable to 2.1."
+  },
+  "hle": {
+   "label": "Humanity's Last Exam",
+   "unit": "%",
+   "cat": "推理",
+   "cat_en": "Reasoning",
+   "note": "标 ‡ 为带工具（或未注明）口径，与无工具不可横比",
+   "note_en": "Entries marked ‡ use a with-tools (or unspecified) methodology and are not comparable to no-tools results."
+  },
+  "gdpval": {
+   "label": "GDPval",
+   "unit": "",
+   "cat": "经济价值任务",
+   "cat_en": "Economic-value tasks",
+   "note": "官方口径为 wins-or-ties %（仅 OpenAI 自报）；标 § 为 Artificial Analysis 复测的 Elo 制 GDPval-AA（v1/v2 版本间不可比）",
+   "note_en": "The official metric is wins-or-ties % (OpenAI self-reported only); entries marked § are Artificial Analysis's re-run Elo-based GDPval-AA (v1 and v2 are not comparable)."
+  },
+  "arc_agi_2": {
+   "label": "ARC-AGI-2",
+   "unit": "%",
+   "cat": "流体智能",
+   "cat_en": "Fluid intelligence",
+   "note": "",
+   "note_en": ""
+  },
+  "osworld": {
+   "label": "OSWorld-Verified",
+   "unit": "%",
+   "cat": "电脑操作",
+   "cat_en": "Computer use",
+   "note": "",
+   "note_en": ""
+  }
+ },
+ "scores": [
+  {
+   "slug": "anthropic/claude-fable-5",
+   "bench": "gdpval",
+   "v": 1760.0,
+   "cfg": "AA v2",
+   "comparable": false,
+   "official": false,
+   "src": "https://artificialanalysis.ai/evaluations/gdpval-aa",
+   "date": "2026-07-17",
+   "note": "AA 榜 7/17 实测（OpenAI 7/9 博客引 1759.6、Kimi K3 7/17 官方稿引 1760）；Anthropic 自报为 v1=1932（6/9 system card，Elo 截至 2026-06-06，同表 Opus 4.8 v1=1890、GPT-5.5=1769）；v1/v2 不可比",
+   "note_en": "AA board measured 7/17 (OpenAI's 7/9 blog cites 1759.6; Kimi K3's 7/17 official release cites 1760); Anthropic self-reports v1=1932 (6/9 system card, Elo as of 2026-06-06; same table has Opus 4.8 v1=1890, GPT-5.5=1769); v1/v2 not comparable."
+  },
+  {
+   "slug": "anthropic/claude-fable-5",
+   "bench": "swe_bench_pro",
+   "v": 80.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/claude-fable-5-mythos-5-system-card",
+   "date": "2026-06-09",
+   "note": "Fable分数含生产安全护栏（部分请求回落到Opus 4.8）；新闻页表格按'两者取高'展示为80.3%",
+   "note_en": "Fable's score includes production safety guardrails (some requests fall back to Opus 4.8); the news-page table shows 80.3% using 'the higher of the two'."
+  },
+  {
+   "slug": "anthropic/claude-fable-5",
+   "bench": "terminal_bench_21",
+   "v": 84.3,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/claude-fable-5-mythos-5-system-card",
+   "date": "2026-06-09",
+   "note": "含护栏回落；新闻页表格取高值88.0%*（星号=受cyber/bio拦截影响，Fable更接近Opus 4.8）",
+   "note_en": "Includes guardrail fallback; the news-page table takes the higher value 88.0%* (asterisk = affected by cyber/bio blocking; Fable is closer to Opus 4.8)."
+  },
+  {
+   "slug": "anthropic/claude-mythos-5",
+   "bench": "hle",
+   "v": 59.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/claude-fable-5-mythos-5-system-card",
+   "date": "2026-06-09",
+   "note": "with tools=64.5%；Fable 5未单独报告（星号项，因安全拦截Fable接近Opus 4.8水平）",
+   "note_en": "with tools=64.5%; Fable 5 not reported separately (asterisked item; due to safety blocking, Fable is close to Opus 4.8's level)."
+  },
+  {
+   "slug": "anthropic/claude-mythos-5",
+   "bench": "osworld",
+   "v": 85.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/claude-fable-5-mythos-5-system-card",
+   "date": "2026-06-09",
+   "note": "首次尝试成功率；zoom工具bug修复+每轮max tokens 16K→128K后重测；Fable 5同为85.0%，Mythos Preview 85.4%",
+   "note_en": "First-attempt success rate; re-tested after fixing a zoom-tool bug and raising per-turn max tokens 16K→128K; Fable 5 is also 85.0%, Mythos Preview 85.4%."
+  },
+  {
+   "slug": "anthropic/claude-mythos-5",
+   "bench": "swe_bench_pro",
+   "v": 80.3,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/claude-fable-5-mythos-5-system-card",
+   "date": "2026-06-09",
+   "note": "系统卡Table 8.1.A标准配置：adaptive thinking max effort、默认采样、5次平均",
+   "note_en": "System card Table 8.1.A standard config: adaptive thinking max effort, default sampling, averaged over 5 runs."
+  },
+  {
+   "slug": "anthropic/claude-mythos-5",
+   "bench": "terminal_bench_21",
+   "v": 88.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/claude-fable-5-mythos-5-system-card",
+   "date": "2026-06-09",
+   "note": "同表GPT-5.5为83.4%(Codex CLI)、Gemini 3.1 Pro 70.7%(Gemini CLI)",
+   "note_en": "Same table: GPT-5.5 is 83.4% (Codex CLI), Gemini 3.1 Pro 70.7% (Gemini CLI)."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.6",
+   "bench": "arc_agi_2",
+   "v": 68.8,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-6",
+   "date": "2026-02-05",
+   "note": "Opus 4.5=37.6%、Gemini 3 Pro=45.1%(Deep Thinking)、GPT-5.2 Pro=54.2%；4.7/4.8/Fable发布页未再报ARC-AGI-2",
+   "note_en": "Opus 4.5=37.6%, Gemini 3 Pro=45.1% (Deep Thinking), GPT-5.2 Pro=54.2%; the 4.7/4.8/Fable release pages no longer report ARC-AGI-2."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.6",
+   "bench": "gdpval",
+   "v": 1606.0,
+   "cfg": "AA v1",
+   "comparable": false,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-6",
+   "date": "2026-02-05",
+   "note": "GPT-5.2=1462、Opus 4.5=1416",
+   "note_en": "GPT-5.2=1462, Opus 4.5=1416."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.6",
+   "bench": "hle",
+   "v": 40.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-6",
+   "date": "2026-02-05",
+   "note": "with tools=53.0%（web搜索+代码执行+max reasoning，3M token上下文压缩）",
+   "note_en": "with tools=53.0% (web search + code execution + max reasoning, 3M-token context compression)."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.6",
+   "bench": "osworld",
+   "v": 72.7,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-6",
+   "date": "2026-02-05",
+   "note": "后续页面(4/16)重测为72.7%→Opus 4.7表中Opus 4.6仍为72.7%",
+   "note_en": "A later page (4/16) re-tested at 72.7% → in the Opus 4.7 table Opus 4.6 is still 72.7%."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.6",
+   "bench": "swe_bench_pro",
+   "v": 53.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-7",
+   "date": "2026-04-16",
+   "note": "来自Opus 4.7发布页对比列（Opus 4.6自身发布页未报SWE-bench Pro）",
+   "note_en": "From the comparison column on the Opus 4.7 release page (Opus 4.6's own release page did not report SWE-Bench Pro)."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.6",
+   "bench": "terminal_bench_21",
+   "v": 65.4,
+   "cfg": "TB 2.0",
+   "comparable": false,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-6",
+   "date": "2026-02-05",
+   "note": "Opus 4.5=59.8%、GPT-5.2=64.7%(Codex CLI, 64.0% self-reported)、Gemini 3 Pro=56.2%",
+   "note_en": "Opus 4.5=59.8%, GPT-5.2=64.7% (Codex CLI, 64.0% self-reported), Gemini 3 Pro=56.2%."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.7",
+   "bench": "hle",
+   "v": 46.9,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-7",
+   "date": "2026-04-16",
+   "note": "with tools=54.7%；GPT-5.4 Pro=58.7%(with tools)更高",
+   "note_en": "with tools=54.7%; GPT-5.4 Pro=58.7% (with tools) is higher."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.7",
+   "bench": "osworld",
+   "v": 78.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-7",
+   "date": "2026-04-16",
+   "note": "发布时数值；5/28 Opus 4.8页中重测为82.8%",
+   "note_en": "Value at release; re-tested at 82.8% on the 5/28 Opus 4.8 page."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.7",
+   "bench": "swe_bench_pro",
+   "v": 64.3,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-7",
+   "date": "2026-04-16",
+   "note": "同表Mythos Preview=77.8%、Opus 4.6=53.4%、GPT-5.4=57.7%",
+   "note_en": "Same table: Mythos Preview=77.8%, Opus 4.6=53.4%, GPT-5.4=57.7%."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.7",
+   "bench": "terminal_bench_21",
+   "v": 69.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-7",
+   "date": "2026-04-16",
+   "note": "注意是2.0版非2.1；GPT-5.4=75.1%(self-reported harness)、Mythos Preview=82.0%",
+   "note_en": "Note: this is version 2.0, not 2.1; GPT-5.4=75.1% (self-reported harness), Mythos Preview=82.0%."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.8",
+   "bench": "gdpval",
+   "v": 1600.0,
+   "cfg": "AA v2",
+   "comparable": false,
+   "official": false,
+   "src": "https://artificialanalysis.ai/evaluations/gdpval-aa",
+   "date": "2026-07-17",
+   "note": "AA 榜 7/17 实测（OpenAI 7/9 GPT-5.6 博客引 1600.1、Kimi K3 7/17 官方稿引 1600，多源一致）；Anthropic 自报口径：v1=1890（5/28 发布博客——修正：此前该行误把 v1 值标成 AA v2）、v2=1615（6/30 Sonnet 5 发布页，Elo 已随榜内样本漂移）；v1/v2 不可比",
+   "note_en": "AA board measured 7/17 (OpenAI's 7/9 GPT-5.6 blog cites 1600.1; Kimi K3's 7/17 official release cites 1600 — multiple sources agree); Anthropic self-reported: v1=1890 (5/28 release blog — correction: this row previously mislabeled the v1 value as AA v2), v2=1615 (6/30 Sonnet 5 release page; Elo has drifted with the board's sample); v1/v2 not comparable."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.8",
+   "bench": "hle",
+   "v": 49.8,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-8",
+   "date": "2026-05-28",
+   "note": "with tools=57.9%",
+   "note_en": "with tools=57.9%."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.8",
+   "bench": "osworld",
+   "v": 83.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-8",
+   "date": "2026-05-28",
+   "note": "Opus 4.7=82.8%（重测值）",
+   "note_en": "Opus 4.7=82.8% (re-tested value)."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.8",
+   "bench": "swe_bench_pro",
+   "v": 69.2,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-8",
+   "date": "2026-05-28",
+   "note": "发布页表格；Opus 4.7=64.3%、GPT-5.5=58.6%、Gemini 3.1 Pro=54.2%",
+   "note_en": "Release-page table; Opus 4.7=64.3%, GPT-5.5=58.6%, Gemini 3.1 Pro=54.2%."
+  },
+  {
+   "slug": "anthropic/claude-opus-4.8",
+   "bench": "terminal_bench_21",
+   "v": 74.6,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-opus-4-8",
+   "date": "2026-05-28",
+   "note": "发布当日表格（GPT-5.5=78.2%领先）；注意：6月9日Fable系统卡及6/30 Sonnet 5页中Opus 4.8已更新为82.7%，配置/harness有变",
+   "note_en": "Release-day table (GPT-5.5=78.2% leads); note: in the 6/9 Fable system card and the 6/30 Sonnet 5 page, Opus 4.8 was updated to 82.7% with a changed config/harness."
+  },
+  {
+   "slug": "anthropic/claude-sonnet-5",
+   "bench": "gdpval",
+   "v": 1618.0,
+   "cfg": "AA v2",
+   "comparable": false,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-sonnet-5",
+   "date": "2026-06-30",
+   "note": "v2与此前v1(Fable=1932)不可直接对比；同表Opus 4.8 v2=1615、Sonnet 4.6=1395",
+   "note_en": "v2 is not directly comparable to the earlier v1 (Fable=1932); same table has Opus 4.8 v2=1615, Sonnet 4.6=1395."
+  },
+  {
+   "slug": "anthropic/claude-sonnet-5",
+   "bench": "hle",
+   "v": 43.2,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-sonnet-5",
+   "date": "2026-06-30",
+   "note": "with tools=57.4%；Sonnet 4.6修订值=34.6/46.8",
+   "note_en": "with tools=57.4%; Sonnet 4.6 revised values=34.6/46.8."
+  },
+  {
+   "slug": "anthropic/claude-sonnet-5",
+   "bench": "osworld",
+   "v": 81.2,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-sonnet-5",
+   "date": "2026-06-30",
+   "note": "Sonnet 4.6=78.5%(修订)",
+   "note_en": "Sonnet 4.6=78.5% (revised)."
+  },
+  {
+   "slug": "anthropic/claude-sonnet-5",
+   "bench": "swe_bench_pro",
+   "v": 63.2,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-sonnet-5",
+   "date": "2026-06-30",
+   "note": "Sonnet 4.6=58.1%、Opus 4.8=69.2%(参考列)",
+   "note_en": "Sonnet 4.6=58.1%, Opus 4.8=69.2% (reference column)."
+  },
+  {
+   "slug": "anthropic/claude-sonnet-5",
+   "bench": "terminal_bench_21",
+   "v": 80.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.anthropic.com/news/claude-sonnet-5",
+   "date": "2026-06-30",
+   "note": "Sonnet 4.6=67.0%、Opus 4.8=82.7%(参考列，与5/28发布值74.6%不同，为更新后数值)",
+   "note_en": "Sonnet 4.6=67.0%, Opus 4.8=82.7% (reference column; differs from the 5/28 release value of 74.6%, this is the updated figure)."
+  },
+  {
+   "slug": "deepseek/deepseek-v4-pro",
+   "bench": "hle",
+   "v": 37.7,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepseekai.guide/news/deepseek-benchmarks-2026/",
+   "date": "unknown",
+   "note": "厂商自报（2026-04-24 发布材料，max 推理），经第三方页面转载，该页明确标注'vendor-reported, pending independent replication'",
+   "note_en": "Vendor self-reported (2026-04-24 release materials, max reasoning), reproduced via a third-party page that explicitly labels it 'vendor-reported, pending independent replication'."
+  },
+  {
+   "slug": "deepseek/deepseek-v4-pro",
+   "bench": "terminal_bench_21",
+   "v": 67.9,
+   "cfg": "TB 2.0",
+   "comparable": false,
+   "official": true,
+   "src": "https://deepseekai.guide/news/deepseek-benchmarks-2026/",
+   "date": "unknown",
+   "note": "厂商自报数字（2026-04-24 发布材料，reasoning_effort=max），经第三方页面转载；注意是 TB 2.0 而非 2.1；另经 codersera.com/blog/deepseek-v4-pro-review-benchmarks-pricing-2026/ 交叉确认",
+   "note_en": "Vendor self-reported number (2026-04-24 release materials, reasoning_effort=max), reproduced via a third-party page; note this is TB 2.0, not 2.1; cross-checked via codersera.com/blog/deepseek-v4-pro-review-benchmarks-pricing-2026/."
+  },
+  {
+   "slug": "google/gemini-3.1-flash-lite",
+   "bench": "hle",
+   "v": 16.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/flash-lite/",
+   "date": "unknown",
+   "note": "对比GPT-5 mini=16.7%、Grok 4.1=17.6%、2.5 Flash=11.0%",
+   "note_en": "For comparison: GPT-5 mini=16.7%, Grok 4.1=17.6%, 2.5 Flash=11.0%."
+  },
+  {
+   "slug": "google/gemini-3.1-pro-preview",
+   "bench": "arc_agi_2",
+   "v": 77.1,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/pro/",
+   "date": "unknown",
+   "note": "Verified；较Gemini 3 Pro(31.1%)翻倍以上；blog.google 2026-02-19发布文同数",
+   "note_en": "Verified; more than double Gemini 3 Pro (31.1%); matches the 2026-02-19 blog.google release post."
+  },
+  {
+   "slug": "google/gemini-3.1-pro-preview",
+   "bench": "gdpval",
+   "v": 1317.0,
+   "cfg": "AA v1",
+   "comparable": false,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/pro/",
+   "date": "unknown",
+   "note": "明显落后：Sonnet 4.6=1633、Opus 4.6=1606、GPT-5.2=1462；Google官方表中自认的短板项",
+   "note_en": "Clearly behind: Sonnet 4.6=1633, Opus 4.6=1606, GPT-5.2=1462; a weakness Google acknowledges in its own official table."
+  },
+  {
+   "slug": "google/gemini-3.1-pro-preview",
+   "bench": "hle",
+   "v": 44.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/pro/",
+   "date": "unknown",
+   "note": "no tools，Thinking；带Search+Code为51.4%（此配置下Opus 4.6=53.1%更高）",
+   "note_en": "no tools, Thinking; with Search+Code it's 51.4% (in that config Opus 4.6=53.1% is higher)."
+  },
+  {
+   "slug": "google/gemini-3.1-pro-preview",
+   "bench": "swe_bench_pro",
+   "v": 54.2,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/pro/",
+   "date": "unknown",
+   "note": "single attempt，Thinking；对比GPT-5.3-Codex=56.8%、GPT-5.2=55.6%（Google在此非第一）",
+   "note_en": "single attempt, Thinking; for comparison GPT-5.3-Codex=56.8%, GPT-5.2=55.6% (Google is not first here)."
+  },
+  {
+   "slug": "google/gemini-3.1-pro-preview",
+   "bench": "terminal_bench_21",
+   "v": 68.5,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/pro/",
+   "date": "unknown",
+   "note": "注意：官方报的是2.0非2.1，Terminus harness，Thinking配置；对比Opus 4.6=65.4%、GPT-5.3-Codex=64.7%、GPT-5.2=54.0%",
+   "note_en": "Note: the official figure is 2.0, not 2.1, Terminus harness, Thinking config; for comparison Opus 4.6=65.4%, GPT-5.3-Codex=64.7%, GPT-5.2=54.0%."
+  },
+  {
+   "slug": "google/gemini-3.5-flash",
+   "bench": "arc_agi_2",
+   "v": 72.1,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/flash/",
+   "date": "unknown",
+   "note": "模型页Reasoning栏",
+   "note_en": "Reasoning column on the model page."
+  },
+  {
+   "slug": "google/gemini-3.5-flash",
+   "bench": "gdpval",
+   "v": 1656.0,
+   "cfg": "AA v1",
+   "comparable": false,
+   "official": true,
+   "src": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/",
+   "date": "2026-05-19",
+   "note": "Artificial Analysis版GDPval Elo（经济价值任务）；官方称超过3.1 Pro（3.1 Pro为1317）",
+   "note_en": "Artificial Analysis's GDPval Elo (economic-value tasks); officially claimed to beat 3.1 Pro (3.1 Pro is 1317)."
+  },
+  {
+   "slug": "google/gemini-3.5-flash",
+   "bench": "hle",
+   "v": 40.2,
+   "cfg": "with/unknown tools",
+   "comparable": false,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/flash/",
+   "date": "unknown",
+   "note": "模型页Reasoning栏，未注明是否带工具",
+   "note_en": "Reasoning column on the model page; not stated whether tools were used."
+  },
+  {
+   "slug": "google/gemini-3.5-flash",
+   "bench": "swe_bench_pro",
+   "v": 55.1,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://deepmind.google/models/gemini/flash/",
+   "date": "unknown",
+   "note": "public子集、single attempt；模型页2026-07-10访问，发布于2026-05-19",
+   "note_en": "public subset, single attempt; model page accessed 2026-07-10, published 2026-05-19."
+  },
+  {
+   "slug": "google/gemini-3.5-flash",
+   "bench": "terminal_bench_21",
+   "v": 76.2,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/",
+   "date": "2026-05-19",
+   "note": "agentic terminal coding；官方称超过Gemini 3.1 Pro；deepmind.google/models/gemini/flash/ 同数",
+   "note_en": "agentic terminal coding; officially claimed to beat Gemini 3.1 Pro; matches deepmind.google/models/gemini/flash/."
+  },
+  {
+   "slug": "meta/muse-spark-1.1",
+   "bench": "hle",
+   "v": 62.1,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://ai.meta.com/static-resource/muse-spark-1-1-evaluation-report",
+   "date": "2026-07-09",
+   "note": "with tools配置；Meta官方图表称领先Opus 4.8=57.9%；与Google的no-tools数字不可直接对比 · 官方评测报告 p.100 Fig.44；Meta Model API xhigh、bash-only harness",
+   "note_en": "with-tools config; Meta's official chart claims a lead over Opus 4.8=57.9%; not directly comparable to Google's no-tools numbers · official evaluation report p.100 Fig.44; Meta Model API xhigh, bash-only harness."
+  },
+  {
+   "slug": "meta/muse-spark-1.1",
+   "bench": "osworld",
+   "v": 80.8,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.datacamp.com/blog/muse-spark-1-1",
+   "date": "2026-07-09",
+   "note": "agentic computer use；Opus 4.8=83.4更高；另有Toolathlon-Verified=75.6",
+   "note_en": "agentic computer use; Opus 4.8=83.4 is higher; also Toolathlon-Verified=75.6."
+  },
+  {
+   "slug": "meta/muse-spark-1.1",
+   "bench": "swe_bench_pro",
+   "v": 61.5,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://ai.meta.com/static-resource/muse-spark-1-1-evaluation-report",
+   "date": "2026-07-09",
+   "note": "Meta官方图表；Opus 4.8=69.2领先明显 · 官方评测报告 p.100 Fig.44；Meta Model API xhigh、bash-only harness",
+   "note_en": "Meta's official chart; Opus 4.8=69.2 leads clearly · official evaluation report p.100 Fig.44; Meta Model API xhigh, bash-only harness."
+  },
+  {
+   "slug": "meta/muse-spark-1.1",
+   "bench": "terminal_bench_21",
+   "v": 80.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://ai.meta.com/static-resource/muse-spark-1-1-evaluation-report",
+   "date": "2026-07-09",
+   "note": "Meta官方发布图表数字（ai.meta.com原文数字仅存于图片，经officechai与datacamp两处独立转录一致）；落后Opus 4.8=82.7、GPT-5.5=83.4 · 官方评测报告 p.100 Fig.44；Meta Model API xhigh、bash-only harness",
+   "note_en": "Meta's official release-chart number (the ai.meta.com figure exists only as an image; independently transcribed identically by officechai and datacamp); behind Opus 4.8=82.7, GPT-5.5=83.4 · official evaluation report p.100 Fig.44; Meta Model API xhigh, bash-only harness."
+  },
+  {
+   "slug": "minimax/minimax-m3",
+   "bench": "swe_bench_pro",
+   "v": 59.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.minimax.io/blog/minimax-m3",
+   "date": "2026-06-01",
+   "note": "官方博客，使用 Claude Code 脚手架；HF card 同为 59",
+   "note_en": "Official blog, using the Claude Code scaffolding; HF card also 59."
+  },
+  {
+   "slug": "minimax/minimax-m3",
+   "bench": "terminal_bench_21",
+   "v": 66.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://www.minimax.io/blog/minimax-m3",
+   "date": "2026-06-01",
+   "note": "Terminus 2 脚手架，8C16G 沙箱",
+   "note_en": "Terminus 2 scaffolding, 8C16G sandbox."
+  },
+  {
+   "slug": "moonshotai/kimi-k3",
+   "bench": "gdpval",
+   "v": 1668.0,
+   "cfg": "AA v2",
+   "comparable": false,
+   "official": true,
+   "src": "https://mp.weixin.qq.com/s/V4xhEIy8xDXSMDPrPkmUAQ",
+   "date": "2026-07-17",
+   "note": "官方公众号评测图表（thinking max/xhigh 口径）；同图 Fable 5=1760、GPT-5.6 Sol=1748、Opus 4.8=1600、GLM-5.2=1514、GPT-5.5=1494；修正：发布日 BenchLM 转述值 1687 有误；AA 官方榜 7/17 实测无 K3 条目（榜上 Sol xhigh=1702、Opus Max=1600，与官方图取数口径/时点有差）",
+   "note_en": "Official WeChat-account evaluation chart (thinking max/xhigh methodology); same chart: Fable 5=1760, GPT-5.6 Sol=1748, Opus 4.8=1600, GLM-5.2=1514, GPT-5.5=1494; correction: the release-day BenchLM-relayed value of 1687 was wrong; the official AA board's 7/17 run has no K3 entry (the board shows Sol xhigh=1702, Opus Max=1600, differing from the official chart in methodology/timing)."
+  },
+  {
+   "slug": "moonshotai/kimi-k3",
+   "bench": "terminal_bench_21",
+   "v": 88.3,
+   "cfg": "thinking max",
+   "comparable": true,
+   "official": true,
+   "src": "https://mp.weixin.qq.com/s/V4xhEIy8xDXSMDPrPkmUAQ",
+   "date": "2026-07-17",
+   "note": "官方公众号图表，明确标注 Terminal Bench 2.1；同图 GPT-5.6 Sol=88.8、Opus 4.8=84.6、Fable 5=84.6、GPT-5.5=83.4、GLM-5.2=82.7",
+   "note_en": "Official WeChat-account chart, explicitly labeled Terminal Bench 2.1; same chart: GPT-5.6 Sol=88.8, Opus 4.8=84.6, Fable 5=84.6, GPT-5.5=83.4, GLM-5.2=82.7."
+  },
+  {
+   "slug": "moonshotai/kimi-k3",
+   "bench": "deepswe",
+   "v": 67.5,
+   "cfg": "thinking max",
+   "comparable": true,
+   "official": true,
+   "src": "https://mp.weixin.qq.com/s/V4xhEIy8xDXSMDPrPkmUAQ",
+   "date": "2026-07-17",
+   "note": "官方自报自跑（K3 尚未上 Datacurve 官方榜）；同图 GPT-5.6 Sol=73.0、Fable 5=70.0、GPT-5.5=67.0、Opus 4.8=59.0、GLM-5.2=46.2，与 Datacurve 7/13 榜基本一致",
+   "note_en": "Vendor self-reported, self-run (K3 is not yet on Datacurve's official board); same chart: GPT-5.6 Sol=73.0, Fable 5=70.0, GPT-5.5=67.0, Opus 4.8=59.0, GLM-5.2=46.2, broadly consistent with Datacurve's 7/13 board."
+  },
+  {
+   "slug": "moonshotai/kimi-k2.6",
+   "bench": "hle",
+   "v": 54.0,
+   "cfg": "with/unknown tools",
+   "comparable": false,
+   "official": true,
+   "src": "https://huggingface.co/moonshotai/Kimi-K2.6",
+   "date": "2026-04-14",
+   "note": "HLE-Full 带工具配置，与无工具口径不可直接比",
+   "note_en": "HLE-Full with-tools config; not directly comparable to the no-tools methodology."
+  },
+  {
+   "slug": "moonshotai/kimi-k2.6",
+   "bench": "swe_bench_pro",
+   "v": 58.6,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://huggingface.co/moonshotai/Kimi-K2.6",
+   "date": "2026-04-14",
+   "note": "HF model card（发布 2026-04-20）",
+   "note_en": "HF model card (published 2026-04-20)."
+  },
+  {
+   "slug": "moonshotai/kimi-k2.6",
+   "bench": "terminal_bench_21",
+   "v": 66.7,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://huggingface.co/moonshotai/Kimi-K2.6",
+   "date": "2026-04-14",
+   "note": "注意为 TB 2.0，非 2.1",
+   "note_en": "Note: TB 2.0, not 2.1."
+  },
+  {
+   "slug": "openai/gpt-5.5",
+   "bench": "arc_agi_2",
+   "v": 85.0,
+   "cfg": "Verified",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "xhigh；ARC-AGI-1(Verified)=95.0%；对比 Opus 4.7=75.8%、Gemini 3.1 Pro=77.1%",
+   "note_en": "xhigh; ARC-AGI-1 (Verified)=95.0%; for comparison Opus 4.7=75.8%, Gemini 3.1 Pro=77.1%."
+  },
+  {
+   "slug": "openai/gpt-5.5",
+   "bench": "gdpval",
+   "v": 84.9,
+   "cfg": "wins-or-ties %",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "44职业知识工作、wins-or-ties口径；对比 GPT-5.4=83.0%、Opus 4.7=80.3%、Gemini 3.1 Pro=67.3%",
+   "note_en": "44 professional knowledge-work occupations, wins-or-ties metric; for comparison GPT-5.4=83.0%, Opus 4.7=80.3%, Gemini 3.1 Pro=67.3%."
+  },
+  {
+   "slug": "openai/gpt-5.5",
+   "bench": "hle",
+   "v": 41.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "xhigh；对比 Opus 4.7=46.9%、Gemini 3.1 Pro=44.4%",
+   "note_en": "xhigh; for comparison Opus 4.7=46.9%, Gemini 3.1 Pro=44.4%."
+  },
+  {
+   "slug": "openai/gpt-5.5",
+   "bench": "hle",
+   "v": 52.2,
+   "cfg": "with/unknown tools",
+   "comparable": false,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "xhigh、带工具",
+   "note_en": "xhigh, with tools."
+  },
+  {
+   "slug": "openai/gpt-5.5",
+   "bench": "swe_bench_pro",
+   "v": 58.6,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "reasoning effort=xhigh，research环境；官方脚注：多家实验室发现该eval存在记忆化(memorization)证据；对比 Opus 4.7=64.3%、Gemini 3.1 Pro=54.2%。经Wayback快照20260709165246读取（openai.com直接抓取被Cloudflare拦截）",
+   "note_en": "reasoning effort=xhigh, research environment; official footnote: multiple labs found evidence of memorization in this eval; for comparison Opus 4.7=64.3%, Gemini 3.1 Pro=54.2%. Read via Wayback snapshot 20260709165246 (direct openai.com fetch was blocked by Cloudflare)."
+  },
+  {
+   "slug": "openai/gpt-5.5",
+   "bench": "terminal_bench_21",
+   "v": 82.7,
+   "cfg": "TB 2.0",
+   "comparable": false,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "注意是2.0版（发布时）；xhigh；对比 GPT-5.4=75.1%、Opus 4.7=69.4%、Gemini 3.1 Pro=68.5%",
+   "note_en": "Note: version 2.0 (at release); xhigh; for comparison GPT-5.4=75.1%, Opus 4.7=69.4%, Gemini 3.1 Pro=68.5%."
+  },
+  {
+   "slug": "openai/gpt-5.5",
+   "bench": "terminal_bench_21",
+   "v": 85.6,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "在GPT-5.6博客中作为对照组重报的2.1版数字（发布博客只有2.0版82.7%）",
+   "note_en": "The 2.1 figure re-reported as a control group in the GPT-5.6 blog (the release blog only had the 2.0 figure of 82.7%)."
+  },
+  {
+   "slug": "openai/gpt-5.5-pro",
+   "bench": "gdpval",
+   "v": 82.3,
+   "cfg": "wins-or-ties %",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "xhigh；低于GPT-5.5的84.9%（官方表格如此）",
+   "note_en": "xhigh; below GPT-5.5's 84.9% (per the official table)."
+  },
+  {
+   "slug": "openai/gpt-5.5-pro",
+   "bench": "hle",
+   "v": 43.1,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "xhigh",
+   "note_en": "xhigh."
+  },
+  {
+   "slug": "openai/gpt-5.5-pro",
+   "bench": "hle",
+   "v": 57.2,
+   "cfg": "with/unknown tools",
+   "comparable": false,
+   "official": true,
+   "src": "https://openai.com/index/introducing-gpt-5-5/",
+   "date": "2026-04-23",
+   "note": "xhigh、带工具；对比 GPT-5.4 Pro=58.7%",
+   "note_en": "xhigh, with tools; for comparison GPT-5.4 Pro=58.7%."
+  },
+  {
+   "slug": "openai/gpt-5.6-luna",
+   "bench": "gdpval",
+   "v": 1591.8,
+   "cfg": "AA v2",
+   "comparable": false,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "AA运行/官方引用；Agents' Last Exam=50.3%、AAII v4.1=51.2、BrowseComp=83.3%",
+   "note_en": "AA run / officially cited; Agents' Last Exam=50.3%, AAII v4.1=51.2, BrowseComp=83.3%."
+  },
+  {
+   "slug": "openai/gpt-5.6-luna",
+   "bench": "swe_bench_pro",
+   "v": 62.7,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "官方表格；DeepSWE v1.1=67.2%",
+   "note_en": "Official table; DeepSWE v1.1=67.2%."
+  },
+  {
+   "slug": "openai/gpt-5.6-luna",
+   "bench": "terminal_bench_21",
+   "v": 84.7,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "以$1/$6价格接近GPT-5.5(85.6%)水平",
+   "note_en": "At $1/$6 pricing, close to GPT-5.5's level (85.6%)."
+  },
+  {
+   "slug": "openai/gpt-5.6-sol",
+   "bench": "gdpval",
+   "v": 1747.8,
+   "cfg": "AA v2",
+   "comparable": false,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "Artificial Analysis第三方运行、OpenAI官方博客引用；同表 Fable 5=1,759.6、Opus 4.8=1,600.1；注意与GPT-5.5博客的GDPval(wins or ties %)口径不同",
+   "note_en": "Artificial Analysis third-party run, cited in OpenAI's official blog; same table: Fable 5=1,759.6, Opus 4.8=1,600.1; note this differs in methodology from the GDPval (wins-or-ties %) in the GPT-5.5 blog."
+  },
+  {
+   "slug": "openai/gpt-5.6-sol",
+   "bench": "osworld",
+   "v": 62.6,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "官方称SOTA，超Opus 4.8(54.8%)且少用85%输出token；注意与GPT-5.5博客的OSWorld-Verified(78.7%)版本不同不可比",
+   "note_en": "Officially claimed SOTA, beating Opus 4.8 (54.8%) while using 85% fewer output tokens; note this is a different version from the OSWorld-Verified (78.7%) in the GPT-5.5 blog and not comparable."
+  },
+  {
+   "slug": "openai/gpt-5.6-sol",
+   "bench": "swe_bench_pro",
+   "v": 64.6,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "表格未逐行标注effort（正文AA指数为max reasoning）；同表对比 Claude Mythos 5=80.3%、Fable 5=80%、Opus 4.8=69.2%",
+   "note_en": "The table does not label effort per row (the body text's AA index is max reasoning); same table: Claude Mythos 5=80.3%, Fable 5=80%, Opus 4.8=69.2%."
+  },
+  {
+   "slug": "openai/gpt-5.6-sol",
+   "bench": "terminal_bench_21",
+   "v": 88.8,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "官方称SOTA；同表 Mythos 5=88%、Fable 5=83.1%、Opus 4.8=78.9%",
+   "note_en": "Officially claimed SOTA; same table: Mythos 5=88%, Fable 5=83.1%, Opus 4.8=78.9%."
+  },
+  {
+   "slug": "openai/gpt-5.6-terra",
+   "bench": "gdpval",
+   "v": 1593.0,
+   "cfg": "AA v2",
+   "comparable": false,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "AA运行/官方引用；Agents' Last Exam=50.4%、AAII v4.1=55、BrowseComp=87.5%",
+   "note_en": "AA run / officially cited; Agents' Last Exam=50.4%, AAII v4.1=55, BrowseComp=87.5%."
+  },
+  {
+   "slug": "openai/gpt-5.6-terra",
+   "bench": "swe_bench_pro",
+   "v": 63.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "官方表格；DeepSWE v1.1=69.6%",
+   "note_en": "Official table; DeepSWE v1.1=69.6%."
+  },
+  {
+   "slug": "openai/gpt-5.6-terra",
+   "bench": "terminal_bench_21",
+   "v": 87.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://openai.com/index/gpt-5-6/",
+   "date": "2026-07-09",
+   "note": "高于GPT-5.5的85.6%（价格一半）",
+   "note_en": "Above GPT-5.5's 85.6% (at half the price)."
+  },
+  {
+   "slug": "qwen/qwen3.7-max",
+   "bench": "hle",
+   "v": 41.4,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://wandb.ai/byyoung3/ml-news/reports/Qwen3-7-Max-Benchmark-Scores---VmlldzoxNjk1MzA1MQ",
+   "date": "unknown",
+   "note": "阿里官方博客(qwen.ai/blog?id=qwen3.7)自报数字，官方页为JS渲染无法直接抓取，经W&B/DataCamp转载核对；对比 Opus 4.6 40",
+   "note_en": "Self-reported number from Alibaba's official blog (qwen.ai/blog?id=qwen3.7); the official page is JS-rendered and can't be scraped directly, verified via W&B/DataCamp reproductions; for comparison Opus 4.6 40."
+  },
+  {
+   "slug": "qwen/qwen3.7-max",
+   "bench": "swe_bench_pro",
+   "v": 60.6,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://wandb.ai/byyoung3/ml-news/reports/Qwen3-7-Max-Benchmark-Scores---VmlldzoxNjk1MzA1MQ",
+   "date": "unknown",
+   "note": "官方自报(SWE-Pro)，经W&B/yottalabs转载；对比 Opus 4.6 57.3",
+   "note_en": "Vendor self-reported (SWE-Pro), reproduced via W&B/yottalabs; for comparison Opus 4.6 57.3."
+  },
+  {
+   "slug": "qwen/qwen3.7-max",
+   "bench": "terminal_bench_21",
+   "v": 69.7,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://wandb.ai/byyoung3/ml-news/reports/Qwen3-7-Max-Benchmark-Scores---VmlldzoxNjk1MzA1MQ",
+   "date": "unknown",
+   "note": "注意为 TB 2.0-Terminus 口径，非 2.1",
+   "note_en": "Note: TB 2.0-Terminus methodology, not 2.1."
+  },
+  {
+   "slug": "tencent/hy3",
+   "bench": "hle",
+   "v": 53.2,
+   "cfg": "with/unknown tools",
+   "comparable": false,
+   "official": true,
+   "src": "https://huggingface.co/tencent/Hy3",
+   "date": "2026-07-02",
+   "note": "HF model card，未注明是否带工具",
+   "note_en": "HF model card; not stated whether tools were used."
+  },
+  {
+   "slug": "tencent/hy3",
+   "bench": "swe_bench_pro",
+   "v": 57.9,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://huggingface.co/tencent/Hy3",
+   "date": "2026-07-02",
+   "note": "HF model card",
+   "note_en": "HF model card."
+  },
+  {
+   "slug": "x-ai/grok-4.5",
+   "bench": "swe_bench_pro",
+   "v": 64.7,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://x.ai/news/grok-4-5",
+   "date": "2026-07-08",
+   "note": "xAI官方发布页（经Wayback快照20260709230518读取）；未标注thinking配置；竞品数字引自各厂商system card/榜单：Fable(max)=80.4%、Opus 4.8(max)=69.2%、GPT 5.5(xhigh)=58.6%；官方另报平均输出token 15,954/任务，为Opus 4.8(max) 67,020的1/4.2",
+   "note_en": "xAI's official release page (read via Wayback snapshot 20260709230518); thinking config not stated; competitor numbers cited from each vendor's system card/leaderboard: Fable(max)=80.4%, Opus 4.8(max)=69.2%, GPT 5.5(xhigh)=58.6%; the vendor also reports average output tokens of 15,954/task, 1/4.2 of Opus 4.8(max)'s 67,020."
+  },
+  {
+   "slug": "x-ai/grok-4.5",
+   "bench": "terminal_bench_21",
+   "v": 83.3,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://x.ai/news/grok-4-5",
+   "date": "2026-07-08",
+   "note": "同图对比：Fable(max)=84.3%、GPT 5.5(xhigh)=83.4%、Opus 4.8(max)=78.9%",
+   "note_en": "Same chart comparison: Fable(max)=84.3%, GPT 5.5(xhigh)=83.4%, Opus 4.8(max)=78.9%."
+  },
+  {
+   "slug": "z-ai/glm-5.2",
+   "bench": "swe_bench_pro",
+   "v": 62.1,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://huggingface.co/blog/zai-org/glm-52-blog",
+   "date": "2026-06-17",
+   "note": "Z.ai 官方 HF 博客；对比 Opus 4.8 69.2 / GPT-5.5 58.6 / GLM-5.1 58.4",
+   "note_en": "Z.ai's official HF blog; for comparison Opus 4.8 69.2 / GPT-5.5 58.6 / GLM-5.1 58.4."
+  },
+  {
+   "slug": "z-ai/glm-5.2",
+   "bench": "terminal_bench_21",
+   "v": 81.0,
+   "cfg": "",
+   "comparable": true,
+   "official": true,
+   "src": "https://huggingface.co/blog/zai-org/glm-52-blog",
+   "date": "2026-06-17",
+   "note": "官方博客；对比 Opus 4.8 85.0 / GPT-5.5 84",
+   "note_en": "Official blog; for comparison Opus 4.8 85.0 / GPT-5.5 84."
+  }
+ ],
+ "extra_models": {
+  "anthropic/claude-mythos-5": {
+   "lab": "Anthropic",
+   "display": "Claude Mythos 5",
+   "price_in": 10.0,
+   "price_out": 50.0,
+   "ctx": 1000000,
+   "access": "Project Glasswing 邀请制（与 Fable 5 同一模型、解除 cyber 护栏；2026-06-09 发布）",
+   "src": "https://www.anthropic.com/claude-fable-5-mythos-5-system-card",
+   "released": "2026-06-09"
+  },
+  "meta/muse-spark-1.1": {
+   "lab": "Meta",
+   "display": "Muse Spark 1.1",
+   "price_in": 1.25,
+   "price_out": 4.25,
+   "ctx": 1000000,
+   "access": "Meta Model API 公测（2026-07-09 发布；闭权重、不经第三方路由分发；消费端 Meta AI 免费）",
+   "src": "https://ai.meta.com",
+   "released": "2026-07-09"
+  }
+ },
+ "facts": {
+  "openai/gpt-5.5": [
+   {
+    "fact": "发布2026-04-23（ChatGPT/Codex），API上线2026-04-24（博客更新注明）；API定价 $5-$30 /MTok，Batch/Flex半价、Priority 2.5x；上下文1M（API，OpenRouter实测1,050,000；Codex内为400K）；评测配置：reasoning effort xhigh。OpenRouter slug openai/gpt-5.5（created 2026-04-24，价格$5/$30与官方一致，今日API实测）",
+    "src": "https://openai.com/index/introducing-gpt-5-5/"
+   }
+  ],
+  "openai/gpt-5.5-pro": [
+   {
+    "fact": "API上线2026-04-24；定价 $30-$180 /MTok；ChatGPT中面向Pro/Business/Enterprise；OpenRouter slug openai/gpt-5.5-pro（ctx 1,050,000，$30/$180，今日实测一致）",
+    "src": "https://openai.com/index/introducing-gpt-5-5/"
+   }
+  ],
+  "openai/gpt-5.6-sol": [
+   {
+    "fact": "GA 2026-07-09（Sol预览版博客'Previewing GPT-5.6 Sol'为2026-06-26，该预览页未被存档）；定价 $5-$30 /MTok；OpenRouter ctx=1,050,000；定位：旗舰(flagship)，面向复杂推理/编码/科研/网络安全/长程agent任务；效力档位medium/xhigh/max/ultra，ultra默认4个并行agent；ChatGPT中另有'GPT-5.6 Sol Pro'（Pro/Enterprise专享）；缓存新规：写1.25x、读-90%、最短缓存30分钟",
+    "src": "https://openai.com/index/gpt-5-6/"
+   }
+  ],
+  "openai/gpt-5.6-terra": [
+   {
+    "fact": "GA 2026-07-09；定价 $2.50-$15 /MTok（官方称'性能与GPT-5.5相当而价格减半'）；OpenRouter ctx=1,050,000；定位：均衡档，ChatGPT Work/Codex中Free和Go用户的默认模型",
+    "src": "https://openai.com/index/gpt-5-6/"
+   }
+  ],
+  "openai/gpt-5.6-luna": [
+   {
+    "fact": "GA 2026-07-09；定价 $1-$6 /MTok；OpenRouter ctx=1,050,000；定位：最快、最省成本档（官方称Coding Agent Index上超Opus 4.8且约1/4成本）。三档命名逻辑（官方原文）：数字=世代，Sol/Terra/Luna=可各自独立迭代的'持久能力档位'（durable capability tiers）",
+    "src": "https://openai.com/index/gpt-5-6/"
+   }
+  ],
+  "openai/gpt-5.6-*-pro (sol-pro/terra-pro/luna-pro)": [
+   {
+    "fact": "OpenRouter今日实测存在全部三个-pro slug（created 2026-07-09），列价与对应基础档相同（sol-pro $5/$30、terra-pro $2.50/$15、luna-pro $1/$6，ctx均1,050,000）；OpenAI官方博客未给-pro变体单独benchmark或单独API价格，仅提及ChatGPT内的'GPT-5.6 Sol Pro'档 → pro变体独立评测数字=not_found",
+    "src": "https://openrouter.ai/api/v1/models"
+   }
+  ],
+  "x-ai/grok-4.5": [
+   {
+    "fact": "发布2026-07-08；定价 $2-$6 /MTok，>200K token长上下文加价至$4-$12，缓存输入$0.50（docs.x.ai实测确认：maxPromptLength=500,000，即500K上下文；OpenRouter同为500K、$2/$6）；获取渠道：xAI API（model=grok-4.5，别名grok-4.5-latest）、Grok Build、Cursor（限时免费）；EU暂不可用（预计7月中）；官方称80 TPS、token效率约2x；页面品牌显示为'SpaceXAI'（版权署名仍为xAI Corp.）",
+    "src": "https://x.ai/news/grok-4-5"
+   }
+  ],
+  "anthropic/claude-fable-5": [
+   {
+    "fact": "发布2026-06-09；$10-$50/MTok；1M上下文、128k最大输出（Batch可300k beta）；API ID=claude-fable-5；adaptive thinking常开；训练数据截止2026-01；'Mythos-class'模型=与Mythos 5同一底层模型+安全护栏（cyber/bio/蒸馏分类器，触发时回落到Opus 4.8，<5%会话，>95%会话无回落）；6/12因美国政府出口管制暂停外国用户访问（起因：Amazon研究员发现绕过护栏识别漏洞的方法），7/1恢复全球可用；Mythos-class流量强制30天数据留存",
+    "src": "https://www.anthropic.com/news/claude-fable-5-mythos-5"
+   },
+   {
+    "fact": "docs确认：GA于Claude API/Bedrock/Vertex/Microsoft Foundry（2026-06-09起）；订阅计划分阶段：6/9-6/22含在Pro/Max/Team/Enterprise内，6/23起需按量付费，后续恢复；Sonnet 5/Opus 4.8/Fable 5知识截止均为2026-01",
+    "src": "https://platform.claude.com/docs/en/about-claude/models/overview"
+   }
+  ],
+  "anthropic/claude-mythos-5": [
+   {
+    "fact": "发布2026-06-09，仅限Project Glasswing伙伴（即将扩展到部分生物研究者）；与Fable 5同一模型但解除cyber护栏；定价同Fable $10-$50/MTok（不到Mythos Preview $25-$125的一半）；不公开自助注册、邀请制、与美国政府协商审批；30天数据留存；出口管制后2026-06-26经政府批准恢复美国已批准组织访问；号称'全球最强网络安全能力模型'；另计划生物版trusted access（Fable 5去bio/chem护栏但保留cyber护栏）",
+    "src": "https://www.anthropic.com/news/claude-fable-5-mythos-5"
+   }
+  ],
+  "Project Glasswing": [
+   {
+    "fact": "2026-04-07启动的关键软件安全防御计划：AWS、Anthropic、Apple、Broadcom、Cisco、CrowdStrike、Google、JPMorganChase、Linux Foundation、Microsoft、NVIDIA、Palo Alto Networks 12家创始伙伴+40余家关键基础设施组织；通过它发放Claude Mythos Preview（$25-$125/MTok，Claude API/Bedrock/Vertex/Foundry）；开源维护者可经Claude for Open Source申请",
+    "src": "https://www.anthropic.com/glasswing"
+   },
+   {
+    "fact": "2026-06-02宣布扩容约150家新组织（总数约200家），分布15+国家，覆盖水务/电力/通信/医疗/硬件基础设施；新成员须先满足安全要求",
+    "src": "https://www.anthropic.com/news/expanding-project-glasswing"
+   }
+  ],
+  "anthropic/claude-opus-4.8": [
+   {
+    "fact": "发布2026-05-28；$5-$25/MTok不变；新增fast mode $10-$50/MTok（2.5倍速）；1M上下文、128k输出；effort默认high（新增Extra/Max档）；比Opus 4.7约4倍更不容易放过代码缺陷不指出",
+    "src": "https://www.anthropic.com/news/claude-opus-4-8"
+   }
+  ],
+  "anthropic/claude-opus-4.7": [
+   {
+    "fact": "发布2026-04-16（距4.6仅70天）；$5-$25/MTok；1M上下文（换用新tokenizer，同样文本token数约为旧模型1.0-1.35倍）、128k输出；新增xhigh effort档；图像输入长边最高2576px",
+    "src": "https://www.anthropic.com/news/claude-opus-4-7"
+   }
+  ],
+  "anthropic/claude-opus-4.6": [
+   {
+    "fact": "发布2026-02-05；$5-$25/MTok（>200k输入premium档$10-$37.50）；1M token上下文（beta）、128k输出；adaptive thinking+effort参数(low/medium/high/max)；上下文压缩beta",
+    "src": "https://www.anthropic.com/news/claude-opus-4-6"
+   }
+  ],
+  "anthropic/claude-sonnet-5": [
+   {
+    "fact": "发布2026-06-30；介绍价$2-$10/MTok至2026-08-31，之后标准价$3-$15/MTok；1M上下文、128k输出；API ID=claude-sonnet-5；训练数据截止2026-01；API/Claude Code上effort默认high",
+    "src": "https://www.anthropic.com/news/claude-sonnet-5"
+   }
+  ],
+  "Claude Mythos Preview": [
+   {
+    "fact": "2026-04-07随Project Glasswing面向受限伙伴发布，$25-$125/MTok；首个Mythos-class模型；Mythos 5为其升级版（更强或相当且便宜一半以上）",
+    "src": "https://www.anthropic.com/glasswing"
+   }
+  ],
+  "google/gemini-3.5-flash": [
+   {
+    "fact": "发布2026-05-19；渠道：Gemini app、AI Mode in Search、Google Antigravity、Gemini API/AI Studio、Android Studio、Gemini Enterprise；博文同时预告Gemini 3.5 Pro“下月”推出；知识截止2025-01",
+    "src": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/"
+   },
+   {
+    "fact": "API定价（标准档）$1.50输入/$9.00输出 per MTok（输出含thinking tokens）；Batch/Flex减半$0.75/$4.50；上下文1M输入/64k输出",
+    "src": "https://ai.google.dev/gemini-api/docs/pricing"
+   }
+  ],
+  "google/gemini-3.1-pro-preview": [
+   {
+    "fact": "发布2026-02-19（preview状态）；渠道：Gemini API/AI Studio、Gemini CLI、Antigravity、Android Studio、Vertex AI、Gemini Enterprise、Gemini app；上下文1M输入/64k输出，知识截止2025-01",
+    "src": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/"
+   },
+   {
+    "fact": "API定价：≤200k tokens时$2.00/$12.00 per MTok，>200k时$4.00/$18.00；context caching另加$0.20-0.40/MTok + $4.50/小时存储",
+    "src": "https://ai.google.dev/gemini-api/docs/pricing"
+   }
+  ],
+  "google/gemini-3.1-flash-lite": [
+   {
+    "fact": "发布2026-03-03（preview）；API定价$0.25输入（音频$0.50）/$1.50输出 per MTok；上下文1M输入/64k输出；渠道：AI Studio/Gemini API、Vertex AI",
+    "src": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/"
+   }
+  ],
+  "meta/muse-spark-1.1": [
+   {
+    "fact": "发布2026-07-09，Meta Superintelligence Labs出品的多模态推理agentic模型；1M token上下文；消费端在Meta AI app/meta.ai的Thinking模式免费用；开发者经新推出的Meta Model API公测接入（OpenAI兼容SDK）",
+    "src": "https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/"
+   },
+   {
+    "fact": "API定价$1.25输入/$4.25输出 per MTok，注册送$20额度；系Meta首个收费AI模型（Reuters/Bloomberg与DataCamp一致确认）",
+    "src": "https://www.datacamp.com/blog/muse-spark-1-1"
+   },
+   {
+    "fact": "不在OpenRouter的原因：闭权重（closed weights，无开源、不可自部署，背离Llama路线），且Meta仅通过自家Meta Model API分发，未授权OpenRouter/Together等第三方路由；前代Muse Spark(1.0)于2026-04-08发布时仅对select partners私测，1.1才开放公测（先面向美国开发者）；官方称未来可能出开源版本但无时间表",
+    "src": "https://wavespeed.ai/blog/posts/is-there-muse-spark-api-2026/"
+   },
+   {
+    "fact": "早期合作方证言含Replit、Cline、Box；媒体报道称将逐步替换WhatsApp/Instagram/Facebook及智能眼镜里的Llama模型",
+    "src": "https://techcrunch.com/2026/07/09/meta-enters-the-crowded-ai-coding-battle-with-muse-spark-1-1/"
+   }
+  ],
+  "deepseek/deepseek-v4-pro": [
+   {
+    "fact": "发布 2026-04-24（V4 Preview 官宣，HF 仓库 2026-04-22 创建，card 标 04-26）；1.6T MoE / 49B 激活，FP4+FP8；上下文 1M；MIT 开源权重；API 价（USD/MTok）cache-miss 输入 $0.435 / 输出 $0.87 / cache-hit $0.003625（原价 $1.74/$3.48，75% off 于 2026-05-31 后转为正式价）；OpenRouter 同为 $0.435 in / $0.87 out；中文报道称原标准价 ¥12 输入 / ¥24 输出，促销 ¥3/¥6",
+    "src": "https://devtk.ai/en/blog/deepseek-api-pricing-guide-2026/"
+   }
+  ],
+  "deepseek/deepseek-v4-flash": [
+   {
+    "fact": "发布 2026-04-24（同 V4 Preview 官宣）；284B MoE / 13B 激活；上下文 1M；MIT 开源权重（HF 2026-04-22 创建）；官方 API 价约 ¥1 输入 / ¥2 输出（≈$0.14/$0.28，cache-hit $0.0028）；OpenRouter 现价 $0.09 in / $0.18 out（ctx 1,048,576）；技术报告 arXiv:2606.19348",
+    "src": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash"
+   }
+  ],
+  "z-ai/glm-5.2": [
+   {
+    "fact": "发布 2026-06-16/17（HF 仓库 06-16 创建，官方博客 06-17）；753B MoE（AA 标 40B 激活），IndexShare 使 1M 上下文每 token FLOPs 降 2.9x；上下文 1M / 最大输出 128K；MIT 开源权重（zai-org/GLM-5.2）；官方 API 价 $1.40 in / $4.40 out / cache-hit $0.26（docs.z.ai，缓存存储限免）；OpenRouter $0.54 in / $1.76 out；Coding Plan 订阅 $12.60/月起，峰时配额 3x/谷时 2x",
+    "src": "https://docs.z.ai/guides/overview/pricing"
+   }
+  ],
+  "moonshotai/kimi-k2.7-code": [
+   {
+    "fact": "发布 2026-06-12（HF 仓库 06-11 创建，OpenRouter 06-12 上架；kimi.com 资源页标 06-25）；1T MoE / 32B 激活 + MoonViT 400M 视觉编码器；上下文 256K；Modified MIT 开源权重；官方 API 价 $0.19 cache-hit / $0.95 cache-miss / $4.00 out；OpenRouter $0.72 in / $3.49 out；思考 token 较 K2.6 约省 30%",
+    "src": "https://www.kimi.com/resources/kimi-k2-7-code"
+   }
+  ],
+  "moonshotai/kimi-k2.6": [
+   {
+    "fact": "发布 2026-04-20（04-13 起 Code Preview 内测，OpenRouter 04-20 上架，HF 仓库 04-14 创建）；1T MoE / 32B 激活；上下文 256K；Modified MIT 开源权重；OpenRouter $0.66 in / $3.41 out；Agent Swarm 支持 300 子代理 / 4000 步，持续编码可达 13 小时",
+    "src": "https://huggingface.co/moonshotai/Kimi-K2.6"
+   }
+  ],
+  "minimax/minimax-m3": [
+   {
+    "fact": "发布 2026-06-01（博客），权重 2026-06-02 上 HF（MiniMaxAI/MiniMax-M3，minimax-community 许可证）；约 428B / 23B 激活，MSA 稀疏注意力，原生多模态；上下文 1M；官方 API 价（≤512K 档，永久 5 折后）$0.30 in / $1.20 out / cache read $0.06，>512K 档 $0.60/$2.40，Priority 档 1.5x；OpenRouter $0.30 in / $1.20 out",
+    "src": "https://platform.minimax.io/docs/guides/pricing-paygo"
+   }
+  ],
+  "qwen/qwen3.7-max": [
+   {
+    "fact": "发布 2026-05-19（官方博客《Qwen3.7: The Agent Frontier》，05-20 阿里云峰会推 Max+Plus-Preview）；闭源不开放权重，仅 API（阿里云 Model Studio，OpenAI/Anthropic 兼容端点）；上下文 1M / 最大输出 65,536；OpenRouter $1.25 in / $3.75 out；DataCamp 引 Artificial Analysis 标价 $2.50/$7.50（疑为高档位/长上下文档），输出极冗长（97M tokens vs 中位 24M）实际成本偏高",
+    "src": "https://www.yottalabs.ai/post/qwen-3-7-max-release-date-features-open-source-status-and-how-to-access-2026"
+   }
+  ],
+  "tencent/hy3": [
+   {
+    "fact": "正式发布 2026-07-06/07（preview 2026-04-23，正式版解除地区限制）；295B MoE / 21B 激活；上下文 256K；Apache 2.0 开源权重（HF tencent/Hy3，07-02 创建）；官方 API 价（腾讯云 TokenHub）¥1/百万 tokens 输入（≈$0.15）、¥4 输出（≈$0.59）、¥0.25 缓存输入（≈$0.037）；OpenRouter $0.14 in / $0.58 out；三档推理模式 no_think(默认)/low/high",
+    "src": "https://technode.com/2026/07/07/tencent-launches-hunyuan-hy3-integrates-model-across-multiple-products/"
+   }
+  ],
+  "moonshotai/kimi-k3": [
+   {
+    "fact": "发布2026-07-16晚（App+API同日上线）；2.8万亿总参（官方quickstart原文「拥有 2.8 万亿参数」，激活参数未公布；此前流传的2.5T为泄露值）；架构 Kimi Delta Attention 混合线性注意力+Attention Residuals，原生视觉理解；ctx 1,048,576、max_out 默认131,072/最高1M；API仅一个SKU kimi-k3，始终思考、reasoning_effort 仅支持 max；App端另有 K3·Max 与 K3 Cluster·Max 两档",
+    "src": "https://platform.kimi.com/docs/guide/kimi-k3-quickstart.md"
+   },
+   {
+    "fact": "定价为1M上下文统一价、无阶梯：国际站输入$3.00/MTok（缓存命中$0.30）、输出$15.00/MTok；国内站¥20/¥2/¥100；OpenRouter挂牌$3/$15与官方一致（2026-07-17实测，单一provider即Moonshot AI）。K3发布后 kimi-k2.5 与 moonshot-v1 系列停止向新注册用户开放，8月31日全平台下线",
+    "src": "https://platform.kimi.ai/docs/pricing/chat-k3.md"
+   },
+   {
+    "fact": "官方公众号评测图表（2026-07-17，全部 thinking max/xhigh 口径）——Agents：GDPval-AA v2=1668、AA-Briefcase=1548（修正发布日 BenchLM 转述的 1687/1527）、BrowseComp=91.2%（单 agent 无上下文压缩，成本约 $2/题，同图 GPT-5.6 Sol=90.4、Fable 5=88.0）、JobBench=52.9、SpreadsheetBench 2=34.8、Automation Bench=30.8；Coding：DeepSWE=67.5、FrontierSWE=81.2、Program Bench=77.8、SWE Marathon=42.0、Kimi Code Bench 2.0（内测集）=72.9（约 $4/题，同图 Fable 5=76.9@约$10、Opus 4.8=71.7）、Terminal Bench 2.1=88.3；视觉：CharXiv-RQ 带工具=91.3、Zerobench 带工具 Pass@5=41.0。SWE-Bench Pro/SWE-bench Verified/HLE/ARC-AGI-2/OSWorld 仍未报",
+    "src": "https://mp.weixin.qq.com/s/V4xhEIy8xDXSMDPrPkmUAQ"
+   },
+   {
+    "fact": "第三方收录状态（截至 2026-07-17）：AA/vals.ai/Datacurve DeepSWE 均未收录 K3；LMArena registry 已出现 kimi-k3 条目（org=moonshot、unranked、userSelectable:false）及未归属隐身马甲 kivine（TestingCatalog 猜测为 K3，无任何分数），正式上榜在即，站内三方评分列为空属正常，每日 Action 自动跟进；权重/license/激活参数均未公布（HF Kimi-K3 返回 401——注意 401 对不存在的 repo 同样返回，不能据此判断 repo 已建；FT/TechCrunch 称 open-weight 为预期口径）",
+    "src": "https://benchlm.ai/blog/posts/kimi-3-release-data-coming-soon"
+   }
+  ]
+ }
+}
