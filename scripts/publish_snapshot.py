@@ -20,6 +20,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from anthropic_arr.db import db_ctx, record_prediction  # noqa: E402
 from anthropic_arr.openai_anchors import load_openai_anchor_records  # noqa: E402
 
 MAX_SNAPSHOT_BYTES = 8 * 1024 * 1024
@@ -58,6 +59,35 @@ def _is_number(value: object) -> bool:
 
 def _is_optional_number(value: object) -> bool:
     return value is None or _is_number(value)
+
+
+def _is_prediction_history_row(value: object) -> bool:
+    return (
+        isinstance(value, dict)
+        and _is_date_only(value.get("as_of"))
+        and _is_year_month(value.get("target_month"))
+        and _is_number(value.get("arr_b"))
+        and _is_optional_number(value.get("ci_low"))
+        and _is_optional_number(value.get("ci_high"))
+    )
+
+
+def _is_date_only(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").strftime("%Y-%m-%d") == value
+    except ValueError:
+        return False
+
+
+def _is_year_month(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    try:
+        return datetime.strptime(value, "%Y-%m").strftime("%Y-%m") == value
+    except ValueError:
+        return False
 
 
 def _has_non_finite_number(value: object) -> bool:
@@ -287,6 +317,7 @@ def _load_complete_snapshot(path: Path) -> dict[str, Any]:
     dashboard = endpoints["dashboard"]["body"]
     public_meta = dashboard.get("public_meta")
     known_arr = dashboard.get("known_arr")
+    predictions_history = dashboard.get("predictions_history")
     dashboard_predictor = dashboard.get("predictor")
     mom_growth = (
         dashboard_predictor.get("mom_growth")
@@ -311,6 +342,8 @@ def _load_complete_snapshot(path: Path) -> dict[str, Any]:
             or not _is_number(row.get("arr_b"))
             for row in known_arr
         )
+        or not isinstance(predictions_history, list)
+        or any(not _is_prediction_history_row(row) for row in predictions_history)
     ):
         raise ValueError("snapshot dashboard has an invalid body")
     predictor = endpoints["predictor_openai"]["body"]
@@ -722,6 +755,60 @@ def publish_snapshot(
     return confirmed
 
 
+def record_published_prediction(snapshot: dict[str, Any], conn: Any) -> int:
+    """Persist the current headline only after exact API readback succeeds."""
+    dashboard = snapshot["endpoints"]["dashboard"]["body"]
+    predictor = dashboard["predictor"]
+    target_month = predictor["target_month"]
+    capture_day = str(snapshot["captured_at"])[:10]
+    current = next(
+        row
+        for row in dashboard["predictions_history"]
+        if row["as_of"] == capture_day and row["target_month"] == target_month
+    )
+    return record_prediction(
+        conn,
+        [
+            {
+                "forecast_date": current["as_of"],
+                "target_month": current["target_month"],
+                "method": "hero",
+                # Stable history channel name retained for existing rows; the
+                # published value is always the selected hero, including a
+                # fallback when the ensemble is unavailable.
+                "signal": "ensemble",
+                "predicted_arr_b": current["arr_b"],
+                "ci_low": current.get("ci_low"),
+                "ci_high": current.get("ci_high"),
+                "n_train": (predictor.get("ensemble") or {}).get("n_models"),
+                "r2": None,
+                "rmse_loo": None,
+            }
+        ],
+    )
+
+
+def persist_published_prediction(snapshot: dict[str, Any]) -> int:
+    """Persist audit history without turning a successful publish into failure."""
+    try:
+        with db_ctx() as conn:
+            try:
+                conn.execute("BEGIN")
+                count = record_published_prediction(snapshot, conn)
+                conn.execute("COMMIT")
+                return count
+            except Exception:
+                if conn.in_transaction:
+                    conn.execute("ROLLBACK")
+                raise
+    except Exception as error:  # noqa: BLE001 - remote publish already succeeded
+        print(
+            f"warning: prediction history persistence failed: {type(error).__name__}",
+            file=sys.stderr,
+        )
+        return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("snapshot", type=Path)
@@ -745,6 +832,8 @@ def main() -> int:
         rev=args.rev,
         dry_run_only=args.dry_run_only,
     )
+    if not args.dry_run_only:
+        persist_published_prediction(result["snapshot"])
     action = "validated" if args.dry_run_only else "published"
     print(
         f"{action}: ailab-arr {result.get('version')} r{result.get('rev')} "

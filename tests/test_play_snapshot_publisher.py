@@ -111,6 +111,15 @@ def write_capture(path: Path) -> None:
                     ],
                 },
                 "known_arr": [{"month": "2026-08", "arr_b": 1.0}],
+                "predictions_history": [
+                    {
+                        "as_of": "2026-08-31",
+                        "target_month": "2026-08",
+                        "arr_b": 1.1,
+                        "ci_low": 1.0,
+                        "ci_high": 1.2,
+                    }
+                ],
             },
             "predictor_openai": {
                 "all_arr_known": openai_known,
@@ -332,6 +341,25 @@ class PlaySnapshotPublisherTest(TestCase):
             "known ARR row": lambda body: body.update(
                 known_arr=[{"month": "2026-08", "arr_b": float("nan")}]
             ),
+            "prediction history row": lambda body: body.update(
+                predictions_history=[
+                    {
+                        "as_of": "2026-08-31",
+                        "target_month": "2026-08",
+                        "arr_b": float("nan"),
+                    }
+                ]
+            ),
+            "missing prediction history": lambda body: body.pop("predictions_history"),
+            "malformed prediction history": lambda body: body.update(
+                predictions_history={"2026-08": 1.1}
+            ),
+            "invalid prediction date": lambda body: body["predictions_history"][
+                0
+            ].update(as_of="not-a-date"),
+            "invalid prediction month": lambda body: body["predictions_history"][
+                0
+            ].update(target_month="2026-13"),
         }
         for field, mutate in mutations.items():
             with self.subTest(field=field), TemporaryDirectory() as temp_dir:

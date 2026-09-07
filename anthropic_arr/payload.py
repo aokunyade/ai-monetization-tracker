@@ -156,6 +156,29 @@ def openai_spend_and_tokens_panel(conn: sqlite3.Connection) -> dict:
     )
 
 
+def prediction_history(conn: sqlite3.Connection) -> list[dict]:
+    """Return the last published headline for each forecast month."""
+    return [
+        {
+            "as_of": row["forecast_date"],
+            "target_month": row["target_month"],
+            "arr_b": row["predicted_arr_b"],
+            "ci_low": row["ci_low"],
+            "ci_high": row["ci_high"],
+        }
+        for row in conn.execute(
+            "SELECT forecast_date, target_month, predicted_arr_b, ci_low, ci_high "
+            "FROM arr_predictions_history p "
+            "WHERE method = 'hero' AND signal = 'ensemble' "
+            "AND forecast_date = ("
+            "  SELECT MAX(forecast_date) FROM arr_predictions_history "
+            "  WHERE target_month = p.target_month AND method = 'hero' "
+            "  AND signal = 'ensemble') "
+            "ORDER BY target_month"
+        )
+    ]
+
+
 def build_payload(
     conn: sqlite3.Connection,
     target_month: str | None = None,
@@ -227,6 +250,10 @@ def build_payload(
         "spend_tokens": spend_and_tokens_panel(conn),
         "spend_tokens_openai": openai_spend_and_tokens_panel(conn),
         "backtest": backtest_summary(conn),
+        # arr_curve redraws past months against newly disclosed anchors. Keep
+        # the last headline published for each month so the original forecast
+        # remains auditable after the curve is refit.
+        "predictions_history": prediction_history(conn),
         # known_arr is already inside predictor.all_arr_known but expose
         # explicitly for the dedicated tab.
         "known_arr": [

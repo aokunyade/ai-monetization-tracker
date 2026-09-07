@@ -380,6 +380,39 @@ def drop_kol_as_of(out: dict[str, Any]) -> None:
         body["as_of"] = None
 
 
+def add_current_prediction_history(out: dict[str, Any]) -> None:
+    """Stage today's headline in the candidate; persist only after readback."""
+    dashboard = ((out.get("endpoints") or {}).get("dashboard") or {}).get("body")
+    if not isinstance(dashboard, dict):
+        return
+    predictor = dashboard.get("predictor")
+    public_meta = dashboard.get("public_meta")
+    if not isinstance(predictor, dict) or not isinstance(public_meta, dict):
+        return
+    target_month = predictor.get("target_month")
+    arr_b = public_meta.get("hero_arr_b")
+    if not isinstance(target_month, str) or not isinstance(arr_b, (int, float)):
+        return
+    current = {
+        "as_of": str(out["captured_at"])[:10],
+        "target_month": target_month,
+        "arr_b": arr_b,
+        "ci_low": public_meta.get("hero_ci_low"),
+        "ci_high": public_meta.get("hero_ci_high"),
+    }
+    history = dashboard.get("predictions_history")
+    rows = history if isinstance(history, list) else []
+    dashboard["predictions_history"] = sorted(
+        [
+            row
+            for row in rows
+            if isinstance(row, dict) and row.get("target_month") != target_month
+        ]
+        + [current],
+        key=lambda row: row["target_month"],
+    )
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("dest", nargs="?", help="output path (default: <UTC date>.json)")
@@ -457,6 +490,7 @@ def main() -> int:
                 file=sys.stderr,
             )
 
+    add_current_prediction_history(out)
     scrub_hidden_anchors(out)
     print(
         "  scrubbed hidden ARR anchors: "
